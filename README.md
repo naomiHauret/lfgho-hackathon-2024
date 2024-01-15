@@ -1,3 +1,13 @@
+# ghooey
+
+LFGHO 2023 hackathon entry.
+
+`ghooey` enables crypto-natives users to assist their loved ones with their real world projects by providing them access an instant access to their liquidity via Aave credit delegation with 0 middleman involved.
+
+---
+
+This project was bootstraped with the minimal template from Astro starter kit.
+
 # Astro Starter Kit: Minimal
 
 ```sh
