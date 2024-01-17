@@ -7,16 +7,15 @@ import Instructions from './../components/Instructions.md'
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.png" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
     <title>ghooey: drop-in UI & primitives toolkit for Aave</title>
   </head>
   <body>
     <div class="px-3 pt-12 mx-auto max-w-prose">
-      <section class="pb-12">
-        <h1 class="text-3xl text-center pb-3 font-bold">ghooey</h1>
-        <div class="bg-gray-50 p-3 text-md rounded-lg">
+      <section class="pb-12 text-gray-700">
+        <h1 class="text-3xl text-center text-gray-800 pb-3 font-bold">ghooey</h1>
+        <div class="[&_img]:mx-auto [&_img]:pb-6 p-3 text-md text-center rounded-lg">
           <Instructions />
         </div>
       </section>
@@ -36,10 +35,15 @@ import Instructions from './../components/Instructions.md'
             <p class="text-gray-800">Provides a summary of a given Ethereum address' positions, borrowing power.</p>
           </div>
           <GhooeyWalletSummary walletAddress="'0xE665CEf14cB016b37014D0BDEAB4A693c3F46Cc0'" />
+          <template x-if="$store.currentUser.account">
+            <GhooeyWalletSummary walletAddress="$store.currentUser.account" />
+          </template>
         </div>
       </div>
       <script>
+        import Alpine from 'alpinejs'
         import { setupGhooey } from './../scripts/ghooey'
+        window.Alpine = Alpine
 
         // Give ghooey elements super powers !
         setupGhooey()
