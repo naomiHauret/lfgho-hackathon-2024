@@ -1,8 +1,78 @@
 # ghooey
 
-LFGHO 2023 hackathon entry.
+LFGHO 2024 hackathon entry.
 
-`ghooey` enables crypto-natives users to assist their loved ones with their real world projects by providing them access an instant access to their liquidity via Aave credit delegation with 0 middleman involved.
+`ghooey` is a drop-in toolkit that includes both primitives and customizable widgets. With `ghooey`, developers can easily put together and customize a delightful front-end experience to assist their users in using the Aave ecosystem and perform tasks such as :
+
+- View the assets they are currently lending and borrowing ;
+- Delegating their borrowing capacities to another wallet/smart contract address ;
+- Borrow GHO on another user's behalf ;
+- Repay previously mentioned loan ;
+
+## Why ghooey ?
+
+Building a front-end for a web3 protocol can be a daunting experience.
+
+- **Interacting with smart contracts from the front-end is a skillset in itself** that requires not only to **be familiar with web3** (eg: what's a smart contract, what's a wallet, how to setup a wallet, what are gas fees and signatures, how to get gas...) **but also being able to use specific tools and concepts** (finding the ABI of a contract for a specific network, ethers v5/ethers v6/wagmi/viem/web3.js, wallet libraries, etc.)
+
+- In many UI kits, the components tend to operate in isolation and/or can only work within the underlying framework
+
+- The underlying styling solution of certain UI kits require to learn a new library, offer little customization/are very hard to customize, or have major technical trade-offs (too heavy, not accessible, not SSR-friendly...)
+
+**Enters ghooey - a drop-in front-end toolkit that includes both primitives and customizable widgets to interact with Aave**.
+
+Built with Alpine.js, a lightweight, minimal javascript framework that works with your existing markup, **ghooey** makes building a custom front-end that interacts with Aave a breeze: setup Alpine and drop the following script at the end of the `<body>` tag of your website.
+
+```html
+<body>
+  <!-- > ... <-->
+  <script src="/path/to/public-folder/ghooey.js">
+    setupGhooey()
+  </script>
+</body>
+```
+
+Now, you can use Alpine directives based on ghooey snippets in your markup to unlock Aave features for your users on your website.
+
+For instance, by using the snippet below, a user with their wallet connected will see :
+
+1. A loading indicator for their summary
+2. Their wallet summary which contains the total amount in USD they can borrown, and their collateral usage in %.
+
+```html
+<body x-data>
+  <!-- > ... <-->
+  <div x-data="walletAaveDataSummary" x-init="address = $store.currentUser.account" x-effect="getSummary()">
+    <template x-if="fetchStatus === 'pending' ">
+      <span x-text="'Loading ' + address + ' summary...'"></span>
+    </template>
+    <template x-if="fetchStatus === 'success' ">
+      <article x-data="{ profile: address }">
+        <span x-text="'Summary for ' + profile"></span>
+        <section>
+          <h1>Total amount available to borrow (in USD)</h1>
+          <p
+            x-text="new Intl.NumberFormat(navigator.language, { style: 'currency', currency: 'USD', }).format(summary.availableBorrowsUSD)"
+          ></p>
+        </section>
+        <section>
+          <h1>Collateral usage</h1>
+          <p
+            x-text="new Intl.NumberFormat(navigator.language, { style: 'percent' }).format(summary.collateralUsage)"
+          ></p>
+        </section>
+      </article>
+    </template>
+  </div>
+  <!-- > ... <-->
+</body>
+```
+
+The markup and style are completely customizable: the developers just need to use Alpine directives (like `x-data`, `x-init`...)
+
+### How does it work ?
+
+The main script (`ghooey.js`) uses `window.ethereum` events to interact and watch the current user's wallet, as well as Alpine stores (global state) and contexts (local state) to interact with Aave smart contracts (read/write).
 
 ---
 
