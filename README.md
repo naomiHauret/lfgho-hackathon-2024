@@ -2,7 +2,7 @@
 
 LFGHO 2024 hackathon entry.
 
-`ghooey` is a drop-in toolkit that includes both primitives and customizable widgets. With `ghooey`, developers can easily put together and customize a delightful front-end experience to assist their users in using the Aave ecosystem and perform tasks such as :
+`ghooey` is a drop-in toolkit that includes both primitives and customizable widgets. With `ghooey`, developers can easily put together and customize a delightful front-end experience to assist their users with the Aave ecosystem and perform tasks such as :
 
 - View the assets they are currently lending and borrowing ;
 - Delegating their borrowing capacities to another wallet/smart contract address ;
@@ -73,6 +73,8 @@ The markup and style are completely customizable: the developers just need to us
 ### How does it work ?
 
 The main script (`ghooey.js`) uses `window.ethereum` events to interact and watch the current user's wallet, as well as Alpine stores (global state) and contexts (local state) to interact with Aave smart contracts (read/write).
+
+Any Aave related data (market reserves, user positions etc) uses a mix of `@aave/contract-helpers`, `@aave/math-utils`, and `@bgd-labs/aave-address-book`.
 
 ---
 

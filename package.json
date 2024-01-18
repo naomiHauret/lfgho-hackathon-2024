@@ -18,7 +18,7 @@
     "@bgd-labs/aave-address-book": "^2.15.2",
     "@types/alpinejs": "^3.13.6",
     "alpinejs": "^3.13.3",
-    "astro": "^4.1.2",
+    "astro": "^4.2.0",
     "dayjs": "^1.11.10",
     "ethers": "5",
     "tailwindcss": "^3.4.1",

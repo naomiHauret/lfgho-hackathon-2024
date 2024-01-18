@@ -35,9 +35,7 @@ const { walletAddress } = Astro.props
         <ul x-data="{ positions: summary.userReservesData.filter(data => parseFloat(data.underlyingBalanceUSD) > 0) }">
           <template x-for="position in positions">
             <li>
-              <span
-                x-text="$formatNumber(position.underlyingBalance, { style: 'currency', currency: 'USD'}).replace('$US', position.reserve.symbol)"
-              ></span>
+              <span x-text="$formatERC20Balance(position.underlyingBalance, position.reserve.symbol)"></span>
             </li>
             <span
               x-text="'(' + $formatNumber(position.underlyingBalanceUSD, { style: 'currency', currency: 'USD' }) +')'"
