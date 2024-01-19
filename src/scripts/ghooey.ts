@@ -14,22 +14,39 @@ import {
   type UserReserveDataHumanized,
   ERC20_2612Service,
   WalletBalanceProvider,
+  Pool,
+  type EthereumTransactionTypeExtended,
+  LendingPool,
 } from '@aave/contract-helpers'
 import { AaveV3Sepolia, IERC20_ABI } from '@bgd-labs/aave-address-book'
-import { providers, Contract, utils } from 'ethers'
+import { providers, Contract, utils, BigNumber } from 'ethers'
+import { IUiPoolDataProvider_ABI } from '@bgd-labs/aave-address-book'
+import { POOL_ABI } from './abi/Pool'
 
 const provider = new providers.JsonRpcProvider('https://ethereum-sepolia.publicnode.com', {
   name: 'Sepolia',
   chainId: 11155111,
 })
 
-const erc20_2612DataProviderContract = new ERC20_2612Service(provider)
-
 function getWalletBalanceProvider() {
   return new WalletBalanceProvider({
     walletBalanceProviderAddress: AaveV3Sepolia.WALLET_BALANCE_PROVIDER,
     provider,
   })
+}
+/**
+ * Generate the transaction data needed to perform protocol interactions with Aave smart contracts
+ * @see https://github.com/aave/aave-utilities/tree/master#transactions-setup
+ */
+async function submitTransaction(args: { provider: providers.Web3Provider; tx: EthereumTransactionTypeExtended }) {
+  const extendedTxData = await args.tx.tx()
+  const { from, ...txData } = extendedTxData
+  const signer = args.provider.getSigner(from)
+  const txResponse = await signer.sendTransaction({
+    ...txData,
+    value: txData.value ? BigNumber.from(txData.value) : undefined,
+  })
+  return txResponse
 }
 
 /**
@@ -119,9 +136,14 @@ export function setupGhooey() {
       getWalletBalanceProvider,
       status: window.ethereum.isConnected() ? 'connected' : 'disconnected',
       account: undefined,
+      // ERC20 token held by the current user
       assets: {
         fetchStatus: 'idle',
         balances: {},
+      },
+      // Aave summary (currently supplying, currently borrowing, etc)
+      aavePortfolio: {
+        fetchStatus: 'idle',
       },
       async init() {
         // On page load, check if user has connected their wallet previously
@@ -133,7 +155,7 @@ export function setupGhooey() {
           if (data[0]) {
             this.account = data[0]
             this.watchContractsEvents()
-            await this.fetchAssets()
+            await Promise.allSettled([await this.fetchAssets(), await this.getAavePortfolio()])
           }
         })
 
@@ -157,7 +179,6 @@ export function setupGhooey() {
           erc20Contract.on('Transfer', async (from, to, value, event) => {
             if ([from.toLowerCase(), to.toLowerCase()].includes(this.account)) {
               await this.fetchSingleAsset(asset.UNDERLYING)
-
               // Dispatch a custom event here ; this can be used on the frontend with x-on directive !
               window.dispatchEvent(
                 new CustomEvent('ERC20_TRANSFER', {
@@ -175,6 +196,31 @@ export function setupGhooey() {
             }
           })
         }
+
+        // Watch supply events that involve the current user
+        const poolContract = new Contract(AaveV3Sepolia.POOL, POOL_ABI, provider)
+        poolContract.on(
+          'Supply',
+          async (reserve: string, user: string, onBehalfOf: string, amount: BigNumber, referralCode: number) => {
+            if (user.toString() === this.account) {
+              const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
+                (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
+              )?.[0]
+              await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
+              window.dispatchEvent(
+                new CustomEvent('POOL_SUPPLY', {
+                  detail: {
+                    token: {
+                      address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
+                      symbol: tokenSymbol,
+                      amount: normalize(amount.toString(), AaveV3Sepolia.ASSETS[tokenSymbol].decimals ?? 18),
+                    },
+                  },
+                }),
+              )
+            }
+          },
+        )
       },
       /**
        * Fetch the balances of underlying ERC20 tokens held by the current user
@@ -222,6 +268,56 @@ export function setupGhooey() {
         }
       },
       /**
+       * Fetch Aave summary of current user
+       * DUPLICATE of the data slice but it makes our lives easier to keep data synced so whatever
+       */
+      async getAavePortfolio(): Promise<void> {
+        this.aavePortfolio.fetchStatus = 'pending'
+        const [reservesData, userData] = await Promise.allSettled([
+          await fetchMarketsData(),
+          await fetchUserData(`${this.account}`),
+        ])
+        const { reserves, reserveIncentives } = reservesData.value
+        const { userReserves, userIncentives } = userData.value
+        const currentTimestamp = Math.floor(Date.now() / 1000)
+        const reservesArray = reserves.reservesData
+        const baseCurrencyData = reserves.baseCurrencyData
+        const userReservesArray = userReserves.userReserves
+        const formattedPoolReserves = formatReserves({
+          reserves: reservesArray,
+          currentTimestamp,
+          marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
+          marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+        })
+
+        const summary = formatUserSummaryAndIncentives({
+          currentTimestamp,
+          marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+          marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
+          userReserves: userReservesArray,
+          formattedReserves: formattedPoolReserves,
+          userEmodeCategoryId: userReserves.userEmodeCategoryId,
+          reserveIncentives,
+          userIncentives,
+        })
+
+        const maxBorrowAmount = valueToBigNumber(summary?.totalBorrowsMarketReferenceCurrency || '0').plus(
+          summary?.availableBorrowsMarketReferenceCurrency || '0',
+        )
+
+        const collateralUsage = maxBorrowAmount.eq(0)
+          ? '0'
+          : valueToBigNumber(summary?.totalBorrowsMarketReferenceCurrency || '0')
+              .div(maxBorrowAmount)
+              .toFixed()
+
+        this.aavePortfolio.summary = {
+          ...summary,
+          collateralUsage,
+        }
+        this.aavePortfolio.fetchStatus = 'success'
+      },
+      /**
        * Check if a wallet already connected to the website ; reconnect it if so and fetch assets
        */
       async checkAccount() {
@@ -231,7 +327,7 @@ export function setupGhooey() {
           this.account = account
           this.status = 'connected'
           this.watchContractsEvents()
-          await this.fetchAssets()
+          await Promise.allSettled([await this.fetchAssets(), await this.getAavePortfolio()])
         } else {
           this.status = 'disconnected'
         }
@@ -334,15 +430,21 @@ export function setupGhooey() {
     window.Alpine.data('erc20Transfer', () => ({
       status: 'idle',
       txHash: undefined,
-      async transferToken(args: { tokenAddress: string; tokenDecimals: number; amount: number; toAddress?: string }) {
+      async transferToken(args: {
+        token: { UNDERLYING: string; decimals: number }
+        amount: number
+        toAddress?: string
+      }) {
         try {
           this.txHash = undefined
           this.status = 'signaturePending'
           const storeCurrentUser = window.Alpine.store('currentUser')
           const walletProvider = new providers.Web3Provider(window.ethereum)
           const signer = walletProvider.getSigner(storeCurrentUser.account)
-          const contract = new Contract(args.tokenAddress, IERC20_ABI, signer)
-          const amount = utils.parseUnits(args.amount.toString(), args.tokenDecimals)
+          const tokenAddress = args.token.UNDERLYING
+          const tokenDecimals = args.token.decimals
+          const contract = new Contract(tokenAddress, IERC20_ABI, signer)
+          const amount = utils.parseUnits(args.amount.toString(), tokenDecimals)
           const tx = await contract.transfer(args.toAddress, amount)
           this.status = 'transactionPending'
           await tx.wait()
@@ -355,6 +457,89 @@ export function setupGhooey() {
       },
     }))
 
+    // Re-usable data slice for using the `supplyWithPermit` function
+    window.Alpine.data('poolSupply', () => ({
+      status: 'idle',
+      amount: 0,
+      token: undefined,
+      txsHashes: undefined,
+      async lend(args: { onBehalfOfAddress?: string }) {
+        try {
+          this.txsHashes = undefined
+          this.status = 'signaturePending'
+
+          // 1. Grant permission
+          const storeCurrentUser = window.Alpine.store('currentUser')
+          const walletProvider = new providers.Web3Provider(window.ethereum)
+          const poolContractProvider = new Pool(provider, {
+            POOL: AaveV3Sepolia.POOL,
+            WETH_GATEWAY: AaveV3Sepolia.WETH_GATEWAY,
+          })
+
+          const tokenAddress = `${this.token.UNDERLYING}`
+          const deadline = Math.round(Date.now() / 600 + 3600).toString() // deadline = 10 minutes
+          const supplyData = {
+            user: storeCurrentUser.account,
+            reserve: tokenAddress,
+            amount: this.amount.toString(),
+            deadline,
+          }
+          const approval: string = await poolContractProvider.signERC20Approval(supplyData)
+          const signature = await walletProvider.send('eth_signTypedData_v4', [storeCurrentUser.account, approval])
+
+          const txData = {
+            ...supplyData,
+          }
+          // The transaction data can also contain a referral code but its disabled for now
+          // Could be passed to the function in the future when enabled again
+          const txs: EthereumTransactionTypeExtended[] = await poolContractProvider.supplyWithPermit({
+            ...txData,
+            signature,
+          })
+
+          this.status = 'transactionPending'
+          const resultTxs = await Promise.allSettled(
+            txs.map(async (tx) => {
+              return await submitTransaction({
+                provider: walletProvider,
+                tx,
+              })
+            }),
+          )
+          if (resultTxs.filter((tx) => tx.status === 'rejected')?.length > 0) {
+            this.status = 'failure'
+            return
+          }
+          this.txsHashes = resultTxs.filter((tx) => {
+            if (tx.status === 'fulfilled') return tx?.value?.hash
+          })
+          await Promise.allSettled(
+            resultTxs.map(async (tx) => {
+              if (tx.status === 'fulfilled') await tx?.value?.wait()
+            }),
+          )
+
+          this.status = 'transactionSuccessful'
+
+          window.dispatchEvent(
+            new CustomEvent('POOL_SUPPLY', {
+              detail: {
+                token: {
+                  symbol: Object.keys(AaveV3Sepolia.ASSETS).filter(
+                    (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING === this.token.UNDERLYING,
+                  )?.[0],
+                  address: this.token.UNDERLYING,
+                  amount: normalize(this.amount.toString(), this.token.decimals ?? 18),
+                },
+              },
+            }),
+          )
+        } catch (e) {
+          console.error(e)
+          this.status = 'error'
+        }
+      },
+    }))
 
     /**
      * Alpine.js magic helper to format numerical values easily with Intl.NumberFormat()

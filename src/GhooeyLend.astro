@@ -1,0 +1,23 @@
+<h1>Lend DAI</h1>
+<template x-if="!$store.currentUser.account">
+  <p>Connect your wallet start lending your DAI and earning yield !</p>
+</template>
+<template x-if="$store.currentUser.account">
+  <section x-data="poolSupply" x-init="token = $assetBySymbol('DAI'); amount = 0;">
+    <form x-ref="formLending" @submit.prevent="lend()">
+      <div>
+        <label for="supplyAmount">Supply</label>
+        <input
+          x-model.number="amount"
+          min="0.000001"
+          id="supplyAmount"
+          type="number"
+          placeholder="1.00"
+          step="0.000001"
+        />
+      </div>
+      <button>Lend</button>
+    </form>
+    <span x-text="status"></span>
+  </section>
+</template>
