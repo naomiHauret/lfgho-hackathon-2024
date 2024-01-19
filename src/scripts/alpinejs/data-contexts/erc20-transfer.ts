@@ -2,6 +2,14 @@ import { IERC20_ABI } from '@bgd-labs/aave-address-book'
 import { Contract, providers, utils } from 'ethers'
 
 interface SliceDataERC20Transfer {
+  transferTokens(args: {
+    token?: {
+      UNDERLYING: string
+      decimals: number
+    }
+    amount?: number
+    recipientAddress: string
+  }): Promise<void>
   status: string
   amount: number
   txHash: any
@@ -18,20 +26,19 @@ interface SliceDataERC20Transfer {
         STATA_TOKEN?: string
       }
     | undefined
-  transferTokens: Promise<void>
 }
 
 /**
  * Register a re-usable data slice that enables the current user to transfer a ERC20 token to another Ethereum address using the `transfer()` method from the ERC20 contract.
- * Usage: put `x-data='erc20-transfer` to give the DOM node + its descendants access to this data slice
+ * Usage: put `x-data='erc20erc20Transfer'` to give the DOM node + its descendants access to this data slice
  * eg: use `@click="transferTokens()"` to call the `transferTokens()`
  * @see https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#IERC20-Transfer-address-address-uint256-
  * @see https://alpinejs.dev/directives/data
  * @see https://alpinejs.dev/globals/alpine-data
  */
-export function registerDataERC20Transfer() {
+export function registerDataERC20Transfer(sliceName: string) {
   // Re-usable data slice for using the `transfer` function of ERC20
-  window.Alpine.data<SliceDataERC20Transfer>('erc20-transfer', () => ({
+  window.Alpine.data<SliceDataERC20Transfer>(sliceName, () => ({
     /**
      * Status of the contract write request.
      * Can be `'idle'`, `'signaturePending'`, `'transactionPending'`, `'transactionSuccessful'` or `'error'` .
@@ -62,17 +69,27 @@ export function registerDataERC20Transfer() {
      * Allow users to send ERC20 tokens to another Ethereum address using ERC20 `transfer()` method.
      * @see https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#IERC20-Transfer-address-address-uint256-
      */
-    async transferTokens() {
+    async transferTokens(args: {
+      token?: {
+        UNDERLYING: string
+        decimals: number
+      }
+      amount?: number
+      recipientAddress: string
+    }) {
       try {
         this.txHash = undefined
         this.status = 'signaturePending'
         const storeCurrentUser = window.Alpine.store('currentUser')
         const walletProvider = new providers.Web3Provider(window.ethereum)
         const signer = walletProvider.getSigner(storeCurrentUser.account)
-        const tokenAddress = this.token.UNDERLYING
-        const tokenDecimals = this.token.decimals
+        if (args?.token) this.token = args.token
+        if (args?.amount) this.amount = args.amount
+        if (args?.recipientAddress) this.recipientAddress = args.recipientAddress
+        const tokenAddress = this.token?.UNDERLYING
+        const tokenDecimals = this.token?.decimals
         const contract = new Contract(tokenAddress, IERC20_ABI, signer)
-        const amount = utils.parseUnits(this.amount.toString(), tokenDecimals)
+        const amount = utils.parseUnits(this.amount?.toString(), tokenDecimals)
         const tx = await contract.transfer(this.recipientAddress, amount)
         this.status = 'transactionPending'
         await tx.wait()

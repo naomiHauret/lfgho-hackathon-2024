@@ -5,6 +5,7 @@ import { providers } from 'ethers'
 import { Pool, type EthereumTransactionTypeExtended } from '@aave/contract-helpers'
 
 interface SliceDataAaveSupplyPool {
+  supplyTokens: () => Promise<void>
   status: string
   amount: number
   txsHashes: any
@@ -20,19 +21,18 @@ interface SliceDataAaveSupplyPool {
         STATA_TOKEN?: string
       }
     | undefined
-  supplyToken: Promise<void>
 }
 
 /**
- * Register a re-usable data slice that enables the current user to supply a ERC20 token to an Aave pool via the `supplyWithPermit()` contract method
- * Usage: put `x-data='aave-supply` to give the DOM node + its descendants access to this data slice
- * eg: use `@click="supplyToken()"` to call the `supplyToken()` method
+ * Register a re-usable data slice that enables the current user to supply a ERC20 token (ERC-2612 compatible) to an Aave pool via the `supplyWithPermit()` contract method
+ * Usage: put `x-data='aaveSupply'` to give the DOM node + its descendants access to this data slice
+ * eg: use `@click="supplyTokens()"` to call the `supplyTokens()` method
  * @see https://github.com/aave/aave-utilities/tree/master#supply-with-permit
  * @see https://alpinejs.dev/directives/data
  * @see https://alpinejs.dev/globals/alpine-data
  */
-export function registerDataAaveSupplyPool() {
-  window.Alpine.data<SliceDataAaveSupplyPool>('aave-supply-pool', () => ({
+export function registerDataAaveSupplyPool(sliceName: string) {
+  window.Alpine.data<SliceDataAaveSupplyPool>(sliceName, () => ({
     /**
      * Status of the contract write request.
      * Can be `'idle'`, `'signaturePending'`, `'transactionPending'`, `'transactionSuccessful'` or `'error'` .
@@ -51,7 +51,7 @@ export function registerDataAaveSupplyPool() {
     token: undefined,
     /**
      * Hash(es) of the transactions.
-     * Defaults to `undefined` (defined from within the `supplyToken` function).
+     * Defaults to `undefined` (defined from within the `supplyTokens` function).
      */
     txsHashes: undefined,
     /**
@@ -60,7 +60,7 @@ export function registerDataAaveSupplyPool() {
      * @see https://github.com/aave/interface/blob/main/src/ui-config/permitConfig.ts
      * @param args.onBehalfOfAddress - {string} - Optional. Allow user to supply an asset on the behalf of another wallet
      */
-    async supplyToken(args: { onBehalfOfAddress?: string }) {
+    async supplyTokens(args: { onBehalfOfAddress?: string }) {
       try {
         this.txsHashes = undefined
         this.status = 'signaturePending'

@@ -42,7 +42,7 @@ For instance, by using the snippet below, a user with their wallet connected wil
 ```html
 <body x-data>
   <!-- > ... <-->
-  <div x-data="wallet-aave-portfolio" x-init="address = $store.currentUser.account" x-effect="getSummary()">
+  <div x-data="walletAavePortfolio" x-init="address = $store.currentUser.account" x-effect="getSummary()">
     <template x-if="fetchStatus === 'pending' ">
       <span x-text="'Loading ' + address + ' summary...'"></span>
     </template>

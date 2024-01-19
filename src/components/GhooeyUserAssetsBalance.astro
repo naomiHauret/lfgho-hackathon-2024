@@ -1,8 +1,8 @@
 <template x-if="$store.currentUser.account">
   <ul>
-    <template x-for="(value, index) in $assetsDictionary">
+    <template x-for="(value, index) in $aaveAssetsDictionary">
       <li
-        x-data="erc20SingleBalance"
+        x-data="erc20BalanceOf"
         x-init="getTokenBalanceForAddress({tokenAddress: value.UNDERLYING, tokenDecimal: value.decimal , walletAddress: $store.currentUser.account })"
       >
         <template x-if="fetchStatus === 'pending'">

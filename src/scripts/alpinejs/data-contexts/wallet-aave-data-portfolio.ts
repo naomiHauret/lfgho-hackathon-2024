@@ -12,17 +12,17 @@ interface SliceDataWalletAavePortfolio {
   fetchStatus: string
   summary: ExtendedUserSummary | undefined
   address: string | undefined
-  getSummary: Promise<void>
+  getSummary: () => Promise<void>
 }
 
 /**
  * Register a re-usable data slice that helps us fetch both Aave market data + a given wallet address portfolio on Aave
- * Usage: put `x-data='wallet-aave-portfolio` to give the DOM node + its descendants access to this data slice
+ * Usage: put `x-data='wallet-aave-portfolio'` to give the DOM node + its descendants access to this data slice
  * @see https://alpinejs.dev/directives/data
  * @see https://alpinejs.dev/globals/alpine-data
  */
-export function registerDataWalletAavePortfolio() {
-  window.Alpine.data<SliceDataWalletAavePortfolio>('wallet-aave-portfolio', () => ({
+export function registerDataWalletAavePortfolio(sliceName: string) {
+  window.Alpine.data<SliceDataWalletAavePortfolio>(sliceName, () => ({
     /**
      * Status of the bundled read request.
      * Can be `'idle'`, `'pending'`, `'success'`

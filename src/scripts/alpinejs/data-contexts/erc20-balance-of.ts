@@ -1,13 +1,20 @@
 import { normalize } from '@aave/math-utils'
+import type { BigNumber } from 'ethers'
+
+interface SliceDataERC20BalanceOf {
+  fetchStatus: string
+  balance: undefined | { value: BigNumber; formatted: string }
+  getTokenBalanceForAddress: () => Promise<void>
+}
 
 /**
  * Register a re-usable data slice that helps us fetch the balance of a specific ERC20 token for a specific Ethereum address
- * Usage: put `x-data='erc20-balance-of` to give the DOM node + its descendants access to this data slice
+ * Usage: put `x-data='erc20BalanceOf'` to give the DOM node + its descendants access to this data slice
  * @see https://alpinejs.dev/directives/data
  * @see https://alpinejs.dev/globals/alpine-data
  */
-export function registerDataWalletAavePortfolio() {
-  window.Alpine.data('erc20-balance-of', () => ({
+export function registerDataERC20BalanceOf(sliceName: string) {
+  window.Alpine.data<SliceDataERC20BalanceOf>(sliceName, () => ({
     /**
      * Status of the read request.
      * Can be `'idle'`, `'pending'`, `'success'`

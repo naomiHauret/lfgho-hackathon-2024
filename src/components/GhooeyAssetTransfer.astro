@@ -3,18 +3,18 @@
   <p>Connect your wallet to pay</p>
 </template>
 <template x-if="$store.currentUser.account">
-  <section x-data="{...erc20Transfer(), token: $assetBySymbol('GHO') }">
+  <section x-data="{...erc20Transfer(), token: $aaveAssetBySymbol('GHO') }">
     <button
       x-text="status === 'signaturePending' ? 'Sign transfer to continue' : status === 'transactionPending' ? 'Transferring...' : 'Pay ' + $formatERC20Balance(amount, 'GHO')"
       x-data="{ amount: 0.5, sendTo: '0xe90406d09418C4EdBD7735c62F9FED7294954905'}"
       :aria-disabled="['signaturePending','transactionPending'].includes(status) || $store.currentUser.assets.fetchStatus === 'pending' || parseFloat($store.currentUser.assets?.balances?.GHO?.formatted ?? 0) <= 0 ? true : false"
       class="bg-purple-500 aria-[disabled='true']:opacity-50 aria-[disabled='true']:pointer-events-none"
-      @click="transferToken({ tokenAddress: token?.UNDERLYING, tokenDecimals: token?.decimals, amount, toAddress: sendTo})"
+      @click="transferTokens({ token, amount, recipientAddress: sendTo})"
     >
     </button>
     <template x-if="$store.currentUser.assets?.balances?.GHO?.formatted">
       <p
-        :class="$store.currentUser.assets?.balances?.GHO?.fetchStatus === 'refresh' && 'animate-pulse'"
+        :class="$store.currentUser.assets?.balances?.GHO?.fetchStatus === 'refreshing' && 'animate-pulse'"
         x-text="'Balance: ' + $formatERC20Balance($store.currentUser.assets?.balances?.GHO?.formatted, 'GHO')"
       >
       </p>

@@ -1,4 +1,4 @@
-<div x-data="walletAaveDataSummary" x-init="address = $store.currentUser.account" x-effect="getSummary()">
+<div x-data="walletAavePortfolio" x-init="address = $store.currentUser.account" x-effect="getSummary()">
   <template x-if="fetchStatus === 'pending' ">
     <span x-text="'Loading ' + address + ' holdings...'"></span>
   </template>
