@@ -1,8 +1,11 @@
 ---
 import GhooeyWallet from '../components/GhooeyWallet.astro'
 import GhooeyWalletSummary from '../components/GhooeyWalletSummary.astro'
-import GhooeyButtonSendAsset from '../components/GhooeyButtonSendAsset.astro'
 import GhooeyAsset from '../components/GhooeyAsset.astro'
+import GhooeyAssetTransfer from '../components/GhooeyAssetTransfer.astro'
+import GhooeyUserReserveHoldings from '../components/GhooeyUserReserveHoldings.astro'
+import GhooeyUserAssetsBalance from '../components/GhooeyUserAssetsBalance.astro'
+
 import Instructions from './../components/Instructions.md'
 ---
 
@@ -13,22 +16,37 @@ import Instructions from './../components/Instructions.md'
     <meta name="viewport" content="width=device-width" />
     <title>ghooey: drop-in UI & primitives toolkit for Aave</title>
   </head>
-  <body>
+  <body class="bg-lime-50">
     <div class="px-3 pt-12 mx-auto max-w-prose">
       <section class="pb-12 text-gray-700">
-        <h1 class="text-3xl text-center text-gray-800 pb-3 font-bold">ghooey</h1>
+        <h1 class="text-3xl text-center text-gray-900 pb-3 font-bold">ghooey</h1>
         <div class="[&_img]:mx-auto [&_img]:pb-6 p-3 text-md text-center rounded-lg">
           <Instructions />
         </div>
       </section>
       <div class="grid gap-6 divide-y divide-neutral-200" x-data>
-        <GhooeyAsset />
+        <div>
+          <div class="mb-8 p-6 rounded-lg bg-gray-100">
+            <h1 class="font-bold text-gray-700 text-lg">Transfer asset</h1>
+            <p class="text-gray-800">
+              To transfer asset, we use the `erc20Transfer` data slice, which exposes the `transferToken()` function.
+              This can be used to build peer-to-peer UIs, checkout button, donation button...
+            </p>
+          </div>
+          <GhooeyAssetTransfer />
+        </div>
+
+        <div>
+          <div class="mb-8 p-6 rounded-lg bg-gray-100">
+            <h1 class="font-bold text-gray-700 text-lg">Asset</h1>
+            <p class="text-gray-800">An asset, accessed via magic property</p>
+          </div>
+          <GhooeyAsset />
+        </div>
         <div>
           <div class="mb-8 p-6 rounded-lg bg-gray-100">
             <h1 class="font-bold text-gray-700 text-lg">Connnect wallet</h1>
-            <p class="text-gray-800">
-              Optional component. Helps user connect their wallet/see their current connected wallet.
-            </p>
+            <p class="text-gray-800">Global store that exposes the wallet that's currently connected.</p>
           </div>
           <GhooeyWallet />
         </div>
@@ -53,7 +71,14 @@ import Instructions from './../components/Instructions.md'
             <h1 class="font-bold text-gray-700 text-lg">Wallet holdings (current user)</h1>
             <p class="text-gray-800">Provides a summary of current user's holdings.</p>
           </div>
-          <GhooeyButtonSendAsset />
+          <GhooeyUserReserveHoldings />
+        </div>
+        <div>
+          <div class="mb-8 p-6 rounded-lg bg-gray-100">
+            <h1 class="font-bold text-gray-700 text-lg">Wallet holdings (current user)</h1>
+            <p class="text-gray-800">Provides a summary of current user's holdings.</p>
+          </div>
+          <GhooeyUserAssetsBalance />
         </div>
       </div>
       <script>

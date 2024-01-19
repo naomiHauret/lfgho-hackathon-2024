@@ -2,9 +2,9 @@ import {
   formatReserves,
   valueToBigNumber,
   formatUserSummaryAndIncentives,
-  normalize,
   type ReservesIncentiveDataHumanized,
   type UserReservesIncentivesDataHumanized,
+  normalize,
 } from '@aave/math-utils'
 import {
   UiPoolDataProvider,
@@ -12,20 +12,16 @@ import {
   ChainId,
   type ReservesDataHumanized,
   type UserReserveDataHumanized,
-  GhoService,
-  ERC20Service,
   ERC20_2612Service,
   WalletBalanceProvider,
 } from '@aave/contract-helpers'
-import { AaveV3Sepolia } from '@bgd-labs/aave-address-book'
-import { providers } from 'ethers'
+import { AaveV3Sepolia, IERC20_ABI } from '@bgd-labs/aave-address-book'
+import { providers, Contract, utils } from 'ethers'
 
 const provider = new providers.JsonRpcProvider('https://ethereum-sepolia.publicnode.com', {
   name: 'Sepolia',
   chainId: 11155111,
 })
-
-const erc20DataProviderContract = new ERC20Service(provider)
 
 const erc20_2612DataProviderContract = new ERC20_2612Service(provider)
 
@@ -123,6 +119,10 @@ export function setupGhooey() {
       getWalletBalanceProvider,
       status: window.ethereum.isConnected() ? 'connected' : 'disconnected',
       account: undefined,
+      assets: {
+        fetchStatus: 'idle',
+        balances: {},
+      },
       async init() {
         // On page load, check if user has connected their wallet previously
         await this.checkAccount()
@@ -130,7 +130,11 @@ export function setupGhooey() {
         // Whenever window.ethereum detects the current connect wallet changed
         // Update current user wallet and client in the store
         window.ethereum.on('accountsChanged', async (data) => {
-          this.account = data[0]
+          if (data[0]) {
+            this.account = data[0]
+            this.watchContractsEvents()
+            await this.fetchAssets()
+          }
         })
 
         window.ethereum.on('chainChanged', (chainId: string) => {
@@ -143,16 +147,98 @@ export function setupGhooey() {
           console.log('disconnect', data)
         })
       },
+      /**
+       * Contract events
+       */
+      async watchContractsEvents() {
+        // Watch transfers that involve the current user for each Aave supported ERC20 token
+        for (const [key, asset] of Object.entries(AaveV3Sepolia.ASSETS)) {
+          const erc20Contract = new Contract(asset.UNDERLYING, IERC20_ABI, provider)
+          erc20Contract.on('Transfer', async (from, to, value, event) => {
+            if ([from.toLowerCase(), to.toLowerCase()].includes(this.account)) {
+              await this.fetchSingleAsset(asset.UNDERLYING)
+
+              // Dispatch a custom event here ; this can be used on the frontend with x-on directive !
+              window.dispatchEvent(
+                new CustomEvent('ERC20_TRANSFER', {
+                  detail: {
+                    token: {
+                      address: asset.UNDERLYING,
+                      symbol: key,
+                      amount: normalize(value.toString(), asset.decimals ?? 18),
+                    },
+                    fromAddress: from.toLowerCase(),
+                    toAddress: to.toLowerCase(),
+                  },
+                }),
+              )
+            }
+          })
+        }
+      },
+      /**
+       * Fetch the balances of underlying ERC20 tokens held by the current user
+       */
+      async fetchAssets() {
+        this.assets.fetchStatus = this.assets.fetchStatus === 'success' ? 'refresh' : 'pending'
+        const assetsContractsData = Object.keys(AaveV3Sepolia.ASSETS).map((symbol) => {
+          return {
+            symbol,
+            ...AaveV3Sepolia.ASSETS[symbol],
+          }
+        })
+        const balanceProvider: WalletBalanceProvider = this.getWalletBalanceProvider()
+        const balances = await balanceProvider.batchBalanceOf(
+          [this.account],
+          [...assetsContractsData.map((asset) => asset.UNDERLYING)],
+        )
+        assetsContractsData.map((asset, i) => {
+          this.assets.balances[asset.symbol] = {
+            fetchStatus: 'success',
+            value: balances[i],
+            formatted: normalize(balances[i].toString(), asset.decimals ?? 18),
+          }
+        })
+        this.assets.fetchStatus = 'success'
+      },
+      /**
+       * Fetch the balances of underlying ERC20 tokens held by the current user
+       */
+      async fetchSingleAsset(tokenAddress: string) {
+        const assetSymbol = Object.keys(AaveV3Sepolia.ASSETS).find(
+          (symbol) => AaveV3Sepolia.ASSETS[symbol].UNDERLYING === tokenAddress,
+        )
+        const asset = AaveV3Sepolia.ASSETS[assetSymbol]
+        this.assets.balances[assetSymbol] = {
+          ...this.assets.balances[`${assetSymbol}`],
+          fetchStatus: 'refresh',
+        }
+        const balanceProvider: WalletBalanceProvider = this.getWalletBalanceProvider()
+        const balance = await balanceProvider.balanceOf(this.account, tokenAddress)
+        this.assets.balances[assetSymbol] = {
+          fetchStatus: 'success',
+          value: balance,
+          formatted: normalize(balance.toString(), asset.decimals ?? 18),
+        }
+      },
+      /**
+       * Check if a wallet already connected to the website ; reconnect it if so and fetch assets
+       */
       async checkAccount() {
         this.status = 'reconnecting'
         const [account] = await window.ethereum.request({ method: 'eth_accounts' })
         if (account) {
           this.account = account
           this.status = 'connected'
+          this.watchContractsEvents()
+          await this.fetchAssets()
         } else {
           this.status = 'disconnected'
         }
       },
+      /**
+       * Connect using a web3 wallet
+       */
       async connect() {
         this.status = 'connecting'
         const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -223,12 +309,11 @@ export function setupGhooey() {
           ...summary,
           collateralUsage,
         }
-        console.log(this.summary)
         this.fetchStatus = 'success'
       },
     }))
 
-    // Re-usable data slice for ERC20 token read/write interactions
+    // Re-usable data slice for ERC20 getBalance
     window.Alpine.data('erc20SingleBalance', () => ({
       fetchStatus: 'idle',
       balance: undefined,
@@ -244,6 +329,32 @@ export function setupGhooey() {
         this.fetchStatus = 'success'
       },
     }))
+
+    // Re-usable data slice for using the `transfer` function of ERC20
+    window.Alpine.data('erc20Transfer', () => ({
+      status: 'idle',
+      txHash: undefined,
+      async transferToken(args: { tokenAddress: string; tokenDecimals: number; amount: number; toAddress?: string }) {
+        try {
+          this.txHash = undefined
+          this.status = 'signaturePending'
+          const storeCurrentUser = window.Alpine.store('currentUser')
+          const walletProvider = new providers.Web3Provider(window.ethereum)
+          const signer = walletProvider.getSigner(storeCurrentUser.account)
+          const contract = new Contract(args.tokenAddress, IERC20_ABI, signer)
+          const amount = utils.parseUnits(args.amount.toString(), args.tokenDecimals)
+          const tx = await contract.transfer(args.toAddress, amount)
+          this.status = 'transactionPending'
+          await tx.wait()
+          this.txHash = tx.hash
+          this.status = 'transactionSuccessful'
+        } catch (e) {
+          console.error(e)
+          this.status = 'error'
+        }
+      },
+    }))
+
 
     /**
      * Alpine.js magic helper to format numerical values easily with Intl.NumberFormat()

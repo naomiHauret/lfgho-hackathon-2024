@@ -12,12 +12,12 @@
               x-data="erc20SingleBalance"
               x-init="getTokenBalanceForAddress({tokenAddress: asset.underlyingAsset, walletAddress: $store.currentUser.account })"
             >
-              <span x-text="asset.reserve.symbol"></span>
+              <span x-text="fetchStatus"></span>
               <template x-if="fetchStatus === 'pending'">
-                <span x-text="'Loading ' + asset.reserve.symbol + ' balance..."></span>
+                <span x-text="'Loading ' + asset.reserve.symbol + ' balance...'"></span>
               </template>
               <template x-if="fetchStatus === 'success' && balance">
-                <span x-text="$formatNumber(balance.formatted)"></span>
+                <span x-text="$formatERC20Balance(balance.formatted, asset.reserve.symbol)"></span>
               </template>
             </li>
           </template>
