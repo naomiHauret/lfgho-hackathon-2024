@@ -8,6 +8,7 @@ import GhooeyUserAssetsBalance from '../components/GhooeyUserAssetsBalance.astro
 import GhooeyLend from '../components/GhooeyLend.astro'
 import GhooeyBorrow from '../components/GhooeyBorrow.astro'
 import GhooeyRepayDebt from '../components/GhooeyRepayDebt.astro'
+import GhooeyWithdrawAsset from '../components/GhooeyWithdrawAsset.astro'
 import Instructions from './../components/Instructions.md'
 ---
 
@@ -27,6 +28,16 @@ import Instructions from './../components/Instructions.md'
         </div>
       </section>
       <div class="grid gap-6 divide-y divide-neutral-200" x-data>
+        <div>
+          <div class="mb-8 p-6 rounded-lg bg-gray-100">
+            <h1 class="font-bold text-gray-700 text-lg">Withdraw supplied assets</h1>
+            <p class="text-gray-800">
+              To withdraw assets from a supply position, use the `aaveWithdrawAsset` data slice. This can be used to
+              build a credit widget.
+            </p>
+          </div>
+          <GhooeyWithdrawAsset />
+        </div>
         <div>
           <div class="mb-8 p-6 rounded-lg bg-gray-100">
             <h1 class="font-bold text-gray-700 text-lg">Repay debt</h1>

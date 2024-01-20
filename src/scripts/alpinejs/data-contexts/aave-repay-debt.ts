@@ -82,8 +82,7 @@ export function registerDataAaveRepayDebt(sliceName: string) {
           user: storeCurrentUser.account,
           amount: this.amount.toString(),
           reserve: this.token.UNDERLYING,
-          interestRateMode:
-            this.interestRateMode === InterestRate.Variable ? InterestRate.Variable : InterestRate.Stable,
+          interestRateMode: this.interestRateMode,
           deadline,
           onBehalfOf: args?.onBehalfOfAddress ?? storeCurrentUser.account,
         }

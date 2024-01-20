@@ -167,6 +167,7 @@ export function registerStoreCurrentUser(storeName: string) {
                 detail: {
                   userAddress: user,
                   onBehalfOfAddress: onBehalfOf,
+                  referralCode,
                   token: {
                     address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
                     symbol: tokenSymbol,
@@ -204,6 +205,9 @@ export function registerStoreCurrentUser(storeName: string) {
                 detail: {
                   userAddress: user.toLowerCase(),
                   onBehalfOfAddress: onBehalfOf.toLowerCase(),
+                  interestRateMode: interestRateMode === 1 ? InterestRate.Stable : InterestRate.Variable, // 1 = Stable ; 2 = Variable
+                  borrowRate,
+                  referralCode,
                   token: {
                     address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
                     symbol: tokenSymbol,
@@ -215,29 +219,60 @@ export function registerStoreCurrentUser(storeName: string) {
           }
         },
       )
-      poolContract.on('Withdraw', async (reserve: string, user: string, to: string, amount: number) => {
-        if (user.toLowerCase() === this.account.toLowerCase()) {
-          const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
-            (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
-          )?.[0]
-          // Refetch balance of asset that was withdrawn from the pool (underlying token balance must be updated) along with the portfolio summary
-          await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
-          // Dispatch a custom event
-          window.dispatchEvent(
-            new CustomEvent('USER_WITHDRAW_ASSET', {
-              detail: {
-                userAddress: user.toLowerCase(),
-                withdrawTo: to,
-                token: {
-                  address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
-                  symbol: tokenSymbol,
-                  amount: normalize(amount.toString(), AaveV3Sepolia.ASSETS[tokenSymbol].decimals ?? 18),
+      poolContract.on(
+        'Repay',
+        async (reserve: string, user: string, repayer: string, amount: number, useATokens: boolean) => {
+          // Refetch Aave markets data and user's portfolio whenever a Repay event occurs
+          if (
+            user.toLowerCase() === this.account.toLowerCase() ||
+            repayer?.toLowerCase() === this.account.toLowerCase()
+          ) {
+            const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
+              (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
+            )?.[0]
+            // Refetch balance of asset that was withdrawn from the pool (underlying token balance must be updated) along with the portfolio summary
+            await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
+            // Dispatch a custom event
+            window.dispatchEvent(
+              new CustomEvent('USER_REPAY_DEBT', {
+                detail: {
+                  userAddress: user.toLowerCase(),
+                  repayerAddress: repayer.toLowerCase(),
+                  useATokens,
+                  token: {
+                    address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
+                    symbol: tokenSymbol,
+                    amount: normalize(amount.toString(), AaveV3Sepolia.ASSETS[tokenSymbol].decimals ?? 18),
+                  },
                 },
-              },
-            }),
-          )
-        }
-      })
+              }),
+            )
+          }
+        },
+      ),
+        poolContract.on('Withdraw', async (reserve: string, user: string, to: string, amount: number) => {
+          if (user.toLowerCase() === this.account.toLowerCase()) {
+            const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
+              (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
+            )?.[0]
+            // Refetch balance of asset that was withdrawn from the pool (underlying token balance must be updated) along with the portfolio summary
+            await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
+            // Dispatch a custom event
+            window.dispatchEvent(
+              new CustomEvent('USER_WITHDRAW_ASSET', {
+                detail: {
+                  userAddress: user.toLowerCase(),
+                  withdrawTo: to,
+                  token: {
+                    address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
+                    symbol: tokenSymbol,
+                    amount: normalize(amount.toString(), AaveV3Sepolia.ASSETS[tokenSymbol].decimals ?? 18),
+                  },
+                },
+              }),
+            )
+          }
+        })
     },
     /**
      * Fetch the balances of underlying ERC20 tokens featured on Aave for the current user
@@ -348,8 +383,8 @@ export function registerStoreCurrentUser(storeName: string) {
         extendedSummary.userReservesData[i].reserve.maxGhoMintAmountUSD = maxAmountToBorrow.toString()
         extendedSummary.userReservesData[i].reserve.borrowRateMode =
           parseFloat(extendedSummary.userReservesData[i].variableBorrows) === 0
-            ? InterestRate.Variable
-            : InterestRate.Stable
+            ? InterestRate.Stable
+            : InterestRate.Variable
       })
       this.aavePortfolio.summary = {
         ...extendedSummary,
@@ -357,7 +392,6 @@ export function registerStoreCurrentUser(storeName: string) {
       }
       summary.availableBorrowsMarketReferenceCurrency
       this.aavePortfolio.fetchStatus = 'success'
-      console.log('this.aavePortfolio.summary', this.aavePortfolio.summary)
     },
     /**
      * Check if a wallet already connected to the website previously.
