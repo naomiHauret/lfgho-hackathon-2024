@@ -165,6 +165,8 @@ export function registerStoreCurrentUser(storeName: string) {
             window.dispatchEvent(
               new CustomEvent('USER_SUPPLY_POOL', {
                 detail: {
+                  userAddress: user,
+                  onBehalfOfAddress: onBehalfOf,
                   token: {
                     address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
                     symbol: tokenSymbol,
@@ -200,7 +202,7 @@ export function registerStoreCurrentUser(storeName: string) {
             window.dispatchEvent(
               new CustomEvent('USER_BORROW_FROM_RESERVE', {
                 detail: {
-                  borrowerAddress: user.toLowerCase(),
+                  userAddress: user.toLowerCase(),
                   onBehalfOfAddress: onBehalfOf.toLowerCase(),
                   token: {
                     address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
@@ -213,6 +215,29 @@ export function registerStoreCurrentUser(storeName: string) {
           }
         },
       )
+      poolContract.on('Withdraw', async (reserve: string, user: string, to: string, amount: number) => {
+        if (user.toLowerCase() === this.account.toLowerCase()) {
+          const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
+            (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
+          )?.[0]
+          // Refetch balance of asset that was withdrawn from the pool (underlying token balance must be updated) along with the portfolio summary
+          await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
+          // Dispatch a custom event
+          window.dispatchEvent(
+            new CustomEvent('USER_WITHDRAW_ASSET', {
+              detail: {
+                userAddress: user.toLowerCase(),
+                withdrawTo: to,
+                token: {
+                  address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
+                  symbol: tokenSymbol,
+                  amount: normalize(amount.toString(), AaveV3Sepolia.ASSETS[tokenSymbol].decimals ?? 18),
+                },
+              },
+            }),
+          )
+        }
+      })
     },
     /**
      * Fetch the balances of underlying ERC20 tokens featured on Aave for the current user

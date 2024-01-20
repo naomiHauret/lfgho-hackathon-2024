@@ -50,12 +50,24 @@ export function registerStoreAaveMarkets(storeName: string) {
       //  Watch supply events that involve the market
 
       const poolContract = new Contract(AaveV3Sepolia.POOL, POOL_ABI, provider)
+
+      // Sidenote: the implementation below might be a bit too much
+      // Another possible way to update market rates would be to wall `fetchMarketsData()` every minute instead
+
       poolContract.on('Supply', async () => {
         // Refetch Aave markets data whenever a Supply event occurs
         await fetchMarketsData()
       })
       poolContract.on('Borrow', async () => {
         // Refetch Aave markets data whenever a Borrow event occurs
+        await fetchMarketsData()
+      })
+      poolContract.on('Withdraw', async () => {
+        // Refetch Aave markets data whenever a Withdraw event occurs
+        await fetchMarketsData()
+      })
+      poolContract.on('Repay', async () => {
+        // Refetch Aave markets data whenever a Repay event occurs
         await fetchMarketsData()
       })
     },

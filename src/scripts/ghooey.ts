@@ -11,6 +11,7 @@ import {
   registerMagic$formatNumber,
   registerDataAaveBorrowReserveAsset,
   registerDataAaveRepayDebt,
+  registerDataAaveWithdrawAsset,
 } from './alpinejs'
 
 // Stores ("$store.<store-name>.<key>")
@@ -24,6 +25,7 @@ const DATA_SLICE_ERC20_TRANSFER = 'erc20Transfer'
 const DATA_SLICE_ERC20_BALANCE_OF = 'erc20BalanceOf'
 const DATA_SLICE_AAVE_BORROW_RESERVE_ASSET = 'aaveBorrowReserveAsset'
 const DATA_SLICE_AAVE_REPAY_DEBT = 'aaveRepayDebt'
+const DATA_SLICE_AAVE_WITHDRAW_ASSET = 'aaveWithdrawAsset'
 
 // Magic custom directives ("$<directive name>")
 const MAGIC_FORMAT_ERC20_BALANCE = 'formatERC20Balance'
@@ -71,6 +73,10 @@ export function setupGhooey() {
 
     // Enable the user to repay their debt
     registerDataAaveRepayDebt(DATA_SLICE_AAVE_REPAY_DEBT)
+
+    // Enable the user to withdraw a token they supplied
+    registerDataAaveWithdrawAsset(DATA_SLICE_AAVE_WITHDRAW_ASSET)
+
     /**
      * Declare & register custom magic extensions
      * @see https://alpinejs.dev/advanced/extending#custom-magics
