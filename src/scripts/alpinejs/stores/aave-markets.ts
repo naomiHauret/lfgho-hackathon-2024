@@ -47,10 +47,15 @@ export function registerStoreAaveMarkets(storeName: string) {
      */
     async watchContractsEvents() {
       // Pool Supply
-      //  Watch supply events that involve the current user
+      //  Watch supply events that involve the market
+
       const poolContract = new Contract(AaveV3Sepolia.POOL, POOL_ABI, provider)
       poolContract.on('Supply', async () => {
-        // Refetch Aave markets data
+        // Refetch Aave markets data whenever a Supply event occurs
+        await fetchMarketsData()
+      })
+      poolContract.on('Borrow', async () => {
+        // Refetch Aave markets data whenever a Borrow event occurs
         await fetchMarketsData()
       })
     },

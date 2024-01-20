@@ -6,29 +6,31 @@
     <section
       x-data="aaveBorrowReserveAsset"
       x-init=`
-    token = $aaveAssetBySymbol('GHO');
+    market = 'GHO';
+    token = $aaveAssetBySymbol(market);
     interestRateMode= 'Variable';
     amount = 1;
-    reserve = $store.currentUser?.aavePortfolio?.summary.userReservesData.filter(reserve =>  token.UNDERLYING.toLowerCase() === reserve.underlyingAsset.toLowerCase())[0];
-  `
+    userAssetData = $store.currentUser?.aavePortfolio?.summary.userReservesData.filter(reserve =>  token.UNDERLYING.toLowerCase() === reserve.underlyingAsset.toLowerCase())[0];
+    maxBorrowableAmount = parseFloat(userAssetData.reserve.maxGhoMintAmount) < parseFloat(userAssetData.reserve.formattedAvailableLiquidity) ? parseFloat(userAssetData.reserve.maxGhoMintAmount): parseFloat(userAssetData.reserve.formattedAvailableLiquidity)
+    `
     >
       <form x-ref="formBorrow" @submit.prevent="borrow()">
         <div>
-          <label for="borrow">Supply</label>
+          <label for="borrow">Amount to borrow</label>
           <input
             x-model.number="amount"
             min="0.000001"
             id="borrow"
             type="number"
             placeholder="1.00"
-            max=""
+            max="maxBorrowableAmount"
             step="0.000001"
           />
+          <span x-text="'You can borrow up to ' +  $formatERC20Balance(maxBorrowableAmount, 'GHO')"> </span>
+          <button>Borrow</button>
         </div>
-        <button>Borrow</button>
+        <span x-text="status"></span>
       </form>
-      <span x-text="status"></span>
-      <p x-text="'Your GHO balance: ' + $formatNumber(reserve.totalBorrows)"></p>
     </section>
   </template>
 </template>

@@ -19,6 +19,8 @@ Building a front-end for a web3 protocol can be a daunting experience.
 
 - The underlying styling solution of certain UI kits require to learn a new library, offer little customization/are very hard to customize, or have major technical trade-offs (too heavy, not accessible, not SSR-friendly...)
 
+- Dependency clashes are a painful reality (eg: your website is using React 16 but the UI Kit supports v18 onwards and onwards ; the UI kit uses a CSS-in-JS library not compatible with your front-end library etc)
+
 - Aave V3 offers a rich, tested TypeScript SDK that offers all the necessary functions to interact with the protocol
 
 - According to W3Techs (World Wide Web Technology Surveys), as of January 2024, Wordpress is used by **43.1%** of all websites on the Internet (followed by Shopify with 4.2%, Wix, Squarespace, Joomla and Drupal). More than 1/2 websites relies on PHP. jQuery is still used by over 80% of all websites and is still taught to web developers.

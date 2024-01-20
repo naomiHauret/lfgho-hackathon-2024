@@ -1,4 +1,3 @@
-import { normalize } from '@aave/math-utils'
 import { provider, submitTransaction } from '../../helpers'
 import { AaveV3Sepolia } from '@bgd-labs/aave-address-book'
 import { providers } from 'ethers'
@@ -85,13 +84,11 @@ export function registerDataAaveBorrowReserveAsset(sliceName: string) {
           reserve: this.token.UNDERLYING,
           interestRateMode: this.interestRateMode,
         }
-        console.log('data', data)
 
         const txs: EthereumTransactionTypeExtended[] = await poolContractProvider.borrow({
           ...data,
         })
 
-        console.log('txs', txs)
         this.status = 'transactionPending'
         const resultTxs = await Promise.allSettled(
           txs.map(async (tx) => {
@@ -101,7 +98,6 @@ export function registerDataAaveBorrowReserveAsset(sliceName: string) {
             })
           }),
         )
-        console.log('resultTxs', resultTxs)
         if (resultTxs.filter((tx) => tx.status === 'rejected')?.length > 0) {
           console.log(tx)
           this.status = 'error'

@@ -1,5 +1,5 @@
 import { AaveV3Sepolia, IERC20_ABI } from '@bgd-labs/aave-address-book'
-import { fetchMarketsData, fetchUserData, getWalletBalanceProvider, provider } from '../../helpers'
+import { fetchMarketsData, fetchUserData, getMaxGhoMintAmount, getWalletBalanceProvider, provider } from '../../helpers'
 import { BigNumber, Contract } from 'ethers'
 import {
   formatReserves,
@@ -9,7 +9,7 @@ import {
   type FormatUserSummaryResponse,
 } from '@aave/math-utils'
 import { POOL_ABI } from '../../abi/Pool'
-import type { WalletBalanceProvider } from '@aave/contract-helpers'
+import { type WalletBalanceProvider } from '@aave/contract-helpers'
 
 interface ExtendedUserSummary extends FormatUserSummaryResponse {
   collateralUsage: string
@@ -155,7 +155,7 @@ export function registerStoreCurrentUser(storeName: string) {
       poolContract.on(
         'Supply',
         async (reserve: string, user: string, onBehalfOf: string, amount: BigNumber, referralCode: number) => {
-          if (user.toString() === this.account) {
+          if (user.toLowerCase() === this.account.toLowerCase()) {
             const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
               (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
             )?.[0]
@@ -163,8 +163,45 @@ export function registerStoreCurrentUser(storeName: string) {
             await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
             // Dispatch a custom event
             window.dispatchEvent(
-              new CustomEvent('POOL_SUPPLY', {
+              new CustomEvent('USER_SUPPLY_POOL', {
                 detail: {
+                  token: {
+                    address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
+                    symbol: tokenSymbol,
+                    amount: normalize(amount.toString(), AaveV3Sepolia.ASSETS[tokenSymbol].decimals ?? 18),
+                  },
+                },
+              }),
+            )
+          }
+        },
+      )
+      poolContract.on(
+        'Borrow',
+        async (
+          reserve: string,
+          user: string,
+          onBehalfOf: string,
+          amount: number,
+          interestRateMode: number,
+          borrowRate: number,
+          referralCode: number,
+        ) => {
+          if (
+            user.toLowerCase() === this.account.toLowerCase() ||
+            onBehalfOf.toLowerCase() === this.account.toLowerCase()
+          ) {
+            const tokenSymbol = Object.keys(AaveV3Sepolia.ASSETS).filter(
+              (asset) => AaveV3Sepolia.ASSETS[asset].UNDERLYING.toLowerCase() === reserve.toLowerCase(),
+            )?.[0]
+            // Refetch balance of asset that was borrowed along with the portfolio summary
+            await Promise.allSettled([await this.fetchSingleAsset(reserve), await this.getAavePortfolio()])
+            // Dispatch a custom event
+            window.dispatchEvent(
+              new CustomEvent('USER_BORROW_FROM_RESERVE', {
+                detail: {
+                  borrowerAddress: user.toLowerCase(),
+                  onBehalfOfAddress: onBehalfOf.toLowerCase(),
                   token: {
                     address: AaveV3Sepolia.ASSETS[tokenSymbol].UNDERLYING,
                     symbol: tokenSymbol,
@@ -269,12 +306,28 @@ export function registerStoreCurrentUser(storeName: string) {
             .div(maxBorrowAmount)
             .toFixed()
 
+      const extendedSummary = summary
+
+      summary.userReservesData.map((asset, i) => {
+        let maxAmountToBorrow = getMaxGhoMintAmount(summary, {
+          borrowCap: asset.reserve.borrowCap,
+          borrowCapUSD: asset.reserve.borrowCapUSD,
+          availableLiquidityUSD: asset.reserve.availableLiquidityUSD,
+          totalDebt: asset.reserve.totalDebt,
+          isFrozen: false,
+          decimals: asset.reserve.decimals,
+          formattedAvailableLiquidity: asset.reserve.availableLiquidity,
+          formattedPriceInMarketReferenceCurrency: asset.reserve.priceInMarketReferenceCurrency,
+        })
+        extendedSummary.userReservesData[i].reserve.maxGhoMintAmount = maxAmountToBorrow.toString()
+        extendedSummary.userReservesData[i].reserve.maxGhoMintAmountUSD = maxAmountToBorrow.toString()
+      })
       this.aavePortfolio.summary = {
-        ...summary,
+        ...extendedSummary,
         collateralUsage,
       }
+      summary.availableBorrowsMarketReferenceCurrency
       this.aavePortfolio.fetchStatus = 'success'
-      // console.log(this.aavePortfolio)
     },
     /**
      * Check if a wallet already connected to the website previously.
