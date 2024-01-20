@@ -4,7 +4,7 @@
 </template>
 <template x-if="$store.currentUser.account">
   <section x-data="aaveSupply" x-init="token = $aaveAssetBySymbol('DAI'); amount = 0;">
-    <form x-ref="formLending" @submit.prevent="supplyToken()">
+    <form @submit.prevent="supplyToken()">
       <div>
         <label for="supplyAmount">Supply</label>
         <input

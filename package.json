@@ -11,14 +11,14 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,js,jsx,json,css,astro}\""
   },
   "dependencies": {
-    "@aave/contract-helpers": "^1.21.1",
-    "@aave/math-utils": "^1.21.1",
+    "@aave/contract-helpers": "^1.23.0",
+    "@aave/math-utils": "^1.23.0",
     "@astrojs/check": "^0.4.1",
     "@astrojs/tailwind": "^5.1.0",
-    "@bgd-labs/aave-address-book": "^2.15.2",
+    "@bgd-labs/aave-address-book": "^2.17.0",
     "@types/alpinejs": "^3.13.6",
     "alpinejs": "^3.13.3",
-    "astro": "^4.2.0",
+    "astro": "^4.2.1",
     "bignumber.js": "^9.1.2",
     "dayjs": "^1.11.10",
     "ethers": "5",

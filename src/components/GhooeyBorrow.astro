@@ -14,7 +14,7 @@
     maxBorrowableAmount = parseFloat(userAssetData.reserve.maxGhoMintAmount) < parseFloat(userAssetData.reserve.formattedAvailableLiquidity) ? parseFloat(userAssetData.reserve.maxGhoMintAmount): parseFloat(userAssetData.reserve.formattedAvailableLiquidity)
     `
     >
-      <form x-ref="formBorrow" @submit.prevent="borrow()">
+      <form @submit.prevent="borrow()">
         <div>
           <label for="borrow">Amount to borrow</label>
           <input
