@@ -63,9 +63,3 @@
     <span x-text="status"></span>
   </section>
 </template>
-<br />
-<br />
-<h2>Repay using supply balance</h2>
-<template x-if="$store.currentUser.account">
-  <section x-data="aaveRepayDebt" x-init="token = $aaveAssetBySymbol('DAI'); amount = 0;"></section>
-</template>
