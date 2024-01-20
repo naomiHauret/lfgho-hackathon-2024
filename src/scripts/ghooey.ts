@@ -9,6 +9,7 @@ import {
   registerDataERC20Transfer,
   registerDataWalletAavePortfolio,
   registerMagic$formatNumber,
+  registerDataAaveBorrowReserveAsset,
 } from './alpinejs'
 
 // Stores
@@ -20,6 +21,7 @@ const DATA_SLICE_WALLET_AAVE_PORTFOLIO = 'walletAavePortfolio'
 const DATA_SLICE_AAVE_SUPPLY = 'aaveSupply'
 const DATA_SLICE_ERC20_TRANSFER = 'erc20Transfer'
 const DATA_SLICE_ERC20_BALANCE_OF = 'erc20BalanceOf'
+const DATA_SLICE_AAVE_BORROW_RESERVE_ASSET = 'aaveBorrowReserveAsset'
 
 // Magic custom directives
 const MAGIC_FORMAT_ERC20_BALANCE = 'formatERC20Balance'
@@ -55,6 +57,9 @@ export function setupGhooey() {
 
     // Supply ERC-2612 compatible ERC20 token to a given Aave pool
     registerDataAaveSupplyPool(DATA_SLICE_AAVE_SUPPLY)
+
+    // Borrow from Aave reserve
+    registerDataAaveBorrowReserveAsset(DATA_SLICE_AAVE_BORROW_RESERVE_ASSET)
 
     // Transfer ERC20 token to another Ethereum address
     registerDataERC20Transfer(DATA_SLICE_ERC20_TRANSFER)

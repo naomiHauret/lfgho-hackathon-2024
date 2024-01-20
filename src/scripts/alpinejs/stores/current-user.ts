@@ -274,6 +274,7 @@ export function registerStoreCurrentUser(storeName: string) {
         collateralUsage,
       }
       this.aavePortfolio.fetchStatus = 'success'
+      // console.log(this.aavePortfolio)
     },
     /**
      * Check if a wallet already connected to the website previously.

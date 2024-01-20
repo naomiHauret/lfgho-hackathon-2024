@@ -1,0 +1,34 @@
+<template x-if="!$store.currentUser.account">
+  <p>Connect your wallet to borrow some GHO !</p>
+</template>
+<template x-if="$store.currentUser.account">
+  <template x-if="$store.currentUser.aavePortfolio.summary">
+    <section
+      x-data="aaveBorrowReserveAsset"
+      x-init=`
+    token = $aaveAssetBySymbol('GHO');
+    interestRateMode= 'Variable';
+    amount = 1;
+    reserve = $store.currentUser?.aavePortfolio?.summary.userReservesData.filter(reserve =>  token.UNDERLYING.toLowerCase() === reserve.underlyingAsset.toLowerCase())[0];
+  `
+    >
+      <form x-ref="formBorrow" @submit.prevent="borrow()">
+        <div>
+          <label for="borrow">Supply</label>
+          <input
+            x-model.number="amount"
+            min="0.000001"
+            id="borrow"
+            type="number"
+            placeholder="1.00"
+            max=""
+            step="0.000001"
+          />
+        </div>
+        <button>Borrow</button>
+      </form>
+      <span x-text="status"></span>
+      <p x-text="'Your GHO balance: ' + $formatNumber(reserve.totalBorrows)"></p>
+    </section>
+  </template>
+</template>
