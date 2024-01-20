@@ -9,7 +9,7 @@ import {
   type FormatUserSummaryResponse,
 } from '@aave/math-utils'
 import { POOL_ABI } from '../../abi/Pool'
-import { type WalletBalanceProvider } from '@aave/contract-helpers'
+import { InterestRate, type WalletBalanceProvider } from '@aave/contract-helpers'
 
 interface ExtendedUserSummary extends FormatUserSummaryResponse {
   collateralUsage: string
@@ -321,6 +321,10 @@ export function registerStoreCurrentUser(storeName: string) {
         })
         extendedSummary.userReservesData[i].reserve.maxGhoMintAmount = maxAmountToBorrow.toString()
         extendedSummary.userReservesData[i].reserve.maxGhoMintAmountUSD = maxAmountToBorrow.toString()
+        extendedSummary.userReservesData[i].reserve.borrowRateMode =
+          parseFloat(extendedSummary.userReservesData[i].variableBorrows) === 0
+            ? InterestRate.Variable
+            : InterestRate.Stable
       })
       this.aavePortfolio.summary = {
         ...extendedSummary,
@@ -328,6 +332,7 @@ export function registerStoreCurrentUser(storeName: string) {
       }
       summary.availableBorrowsMarketReferenceCurrency
       this.aavePortfolio.fetchStatus = 'success'
+      console.log('this.aavePortfolio.summary', this.aavePortfolio.summary)
     },
     /**
      * Check if a wallet already connected to the website previously.

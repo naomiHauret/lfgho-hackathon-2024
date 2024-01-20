@@ -99,7 +99,6 @@ export function registerDataAaveBorrowReserveAsset(sliceName: string) {
           }),
         )
         if (resultTxs.filter((tx) => tx.status === 'rejected')?.length > 0) {
-          console.log(tx)
           this.status = 'error'
           return
         }

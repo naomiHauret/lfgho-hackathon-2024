@@ -1,11 +1,11 @@
-import { normalize } from '@aave/math-utils'
 import { provider, submitTransaction } from '../../helpers'
 import { AaveV3Sepolia } from '@bgd-labs/aave-address-book'
 import { providers } from 'ethers'
-import { Pool, type EthereumTransactionTypeExtended } from '@aave/contract-helpers'
+import { Pool, type EthereumTransactionTypeExtended, InterestRate } from '@aave/contract-helpers'
 
-interface SliceDataAaveSupplyPool {
-  supplyTokens: () => Promise<void>
+interface SliceDataAaveRepayDebt {
+  repayDebt: () => Promise<void>
+  repayDebtWithAToken: () => Promise<void>
   status: string
   amount: number
   txsHashes: any
@@ -24,15 +24,16 @@ interface SliceDataAaveSupplyPool {
 }
 
 /**
- * Register a re-usable data slice that enables the current user to supply a ERC20 token (ERC-2612 compatible) to an Aave pool via the `supplyWithPermit()` contract method
- * Usage: put `x-data='aaveSupply'` to give the DOM node + its descendants access to this data slice
- * eg: use `@click="supplyTokens()"` to call the `supplyTokens()` method
- * @see https://github.com/aave/aave-utilities/tree/master#supply-with-permit
+ * Register a re-usable data slice that enables the current user to repat their debt via either the `repayWithPermit()` or `repayWithATokens()` contract methods
+ * Usage: put `x-data='aaveRepayDebt'` to give the DOM node + its descendants access to this data slice
+ * eg: use `@click="repay()"` to call the `repay()` method
+ * @see https://github.com/aave/aave-utilities/tree/master#repayWithPermit
+ * @see https://github.com/aave/aave-utilities/tree/master#repaywithatokens
  * @see https://alpinejs.dev/directives/data
  * @see https://alpinejs.dev/globals/alpine-data
  */
-export function registerDataAaveSupplyPool(sliceName: string) {
-  window.Alpine.data<SliceDataAaveSupplyPool>(sliceName, () => ({
+export function registerDataAaveRepayDebt(sliceName: string) {
+  window.Alpine.data<SliceDataAaveRepayDebt>(sliceName, () => ({
     /**
      * Status of the contract write request.
      * Can be `'idle'`, `'signaturePending'`, `'transactionPending'`, `'transactionSuccessful'` or `'error'` .
@@ -40,27 +41,32 @@ export function registerDataAaveSupplyPool(sliceName: string) {
      */
     status: 'idle',
     /**
-     * Amount of ERC20 token to supply to the pool.
+     * Amount spent on repaying the debt
      * Defaults to `0`. Set/update it in the markup with `x-bind`, `x-init` or `x-data`
      */
     amount: 0,
     /**
-     * ERC20 token to supply to the pool.
+     * Borrow rate mode.
+     * Default to variable. Set in the markup
+     */
+    interestRateMode: InterestRate.Variable,
+    /**
+     * Reserve asset the user wishes to borrow.
      * Defaults to `undefined`. Set/update it in the markup with `x-bind`, `x-init` or `x-data`
      */
     token: undefined,
     /**
      * Hash(es) of the transactions.
-     * Defaults to `undefined` (defined from within the `supplyTokens` function).
      */
     txsHashes: undefined,
     /**
-     * Allow users to supply ERC20 tokens to an Aave V3 pool via `supplyWithPermit()` contract method.
-     * Token **must be ERC-2612 compatible** and **cannot be GHO** (GHO cannot be supplied for now)
-     * @see https://github.com/aave/interface/blob/main/src/ui-config/permitConfig.ts
-     * @param args.onBehalfOfAddress - {string} - Optional. Allow user to supply an asset on the behalf of another wallet
+     * Allow current user to borrow assets from an Aave V3 pool via  the `repayWithPermit()` contract method.
+     * **The user must have a collateralized position (= hold a positive balance of aToken in their wallet) or the method will fail !**
+     * @see https://github.com/aave/aave-utilities/tree/master#borrow-(v3)
+     * @param args.amount - {number} - Optional. Amount of tokens used to repay the debt
+     * @param args.reserve - {{ UNDERLYING: string, decimals: number}} - Optional. Reserve from which the user wishes to borrow
      */
-    async supplyTokens(args: { onBehalfOfAddress?: string }) {
+    async repayDebt(args: { onBehalfOfAddress?: string }) {
       try {
         this.txsHashes = undefined
         this.status = 'signaturePending'
@@ -71,35 +77,35 @@ export function registerDataAaveSupplyPool(sliceName: string) {
           POOL: AaveV3Sepolia.POOL,
           WETH_GATEWAY: AaveV3Sepolia.WETH_GATEWAY,
         })
-
-        const tokenAddress = `${this.token.UNDERLYING}`
         const deadline = Math.round(Date.now() / 600 + 3600).toString() // deadline = 10 minutes
-        const supplyData = {
+        const repayDebtData = {
           user: storeCurrentUser.account,
-          reserve: tokenAddress,
           amount: this.amount.toString(),
+          reserve: this.token.UNDERLYING,
+          interestRateMode:
+            this.interestRateMode === InterestRate.Variable ? InterestRate.Variable : InterestRate.Stable,
           deadline,
+          onBehalfOf: args?.onBehalfOfAddress ?? storeCurrentUser.account,
         }
-        const approval: string = await poolContractProvider.signERC20Approval(supplyData)
+        const approval: string = await poolContractProvider.signERC20Approval(repayDebtData)
         const signature = await walletProvider.send('eth_signTypedData_v4', [storeCurrentUser.account, approval])
-
         const txData = {
-          ...supplyData,
+          ...repayDebtData,
           signature,
         }
-        // The transaction data can also contain a referral code but its disabled for now
-        // Could be passed to the function in the future when enabled again
-        const txs: EthereumTransactionTypeExtended[] = await poolContractProvider.supplyWithPermit(txData)
 
+        const txs: EthereumTransactionTypeExtended[] = await poolContractProvider.repayWithPermit(txData)
         this.status = 'transactionPending'
         const resultTxs = await Promise.allSettled(
           txs.map(async (tx) => {
-            return await submitTransaction({
+            const result = await submitTransaction({
               provider: walletProvider,
               tx,
             })
+            return result
           }),
         )
+
         if (resultTxs.filter((tx) => tx.status === 'rejected')?.length > 0) {
           this.status = 'error'
           return

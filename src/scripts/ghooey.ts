@@ -10,20 +10,22 @@ import {
   registerDataWalletAavePortfolio,
   registerMagic$formatNumber,
   registerDataAaveBorrowReserveAsset,
+  registerDataAaveRepayDebt,
 } from './alpinejs'
 
-// Stores
+// Stores ("$store.<store-name>.<key>")
 const STORE_CURRENT_USER = 'currentUser'
 const STORE_AAVE_MARKET = 'aaveMarkets'
 
-// Data slices
+// Data slices (x-data="<slice-name>")
 const DATA_SLICE_WALLET_AAVE_PORTFOLIO = 'walletAavePortfolio'
 const DATA_SLICE_AAVE_SUPPLY = 'aaveSupply'
 const DATA_SLICE_ERC20_TRANSFER = 'erc20Transfer'
 const DATA_SLICE_ERC20_BALANCE_OF = 'erc20BalanceOf'
 const DATA_SLICE_AAVE_BORROW_RESERVE_ASSET = 'aaveBorrowReserveAsset'
+const DATA_SLICE_AAVE_REPAY_DEBT = 'aaveRepayDebt'
 
-// Magic custom directives
+// Magic custom directives ("$<directive name>")
 const MAGIC_FORMAT_ERC20_BALANCE = 'formatERC20Balance'
 const MAGIC_FORMAT_NUMBER = 'formatNumber'
 const MAGIC_AAVE_ASSETS_DICTIONARY = 'aaveAssetsDictionary'
@@ -67,6 +69,8 @@ export function setupGhooey() {
     // Get the balance of a specific ERC20 token balance for a given Ethereum address
     registerDataERC20BalanceOf(DATA_SLICE_ERC20_BALANCE_OF)
 
+    // Enable the user to repay their debt
+    registerDataAaveRepayDebt(DATA_SLICE_AAVE_REPAY_DEBT)
     /**
      * Declare & register custom magic extensions
      * @see https://alpinejs.dev/advanced/extending#custom-magics

@@ -2,7 +2,8 @@ import { WalletBalanceProvider } from '@aave/contract-helpers'
 import { AaveV3Sepolia } from '@bgd-labs/aave-address-book'
 import { providers } from 'ethers'
 
-export const provider = new providers.JsonRpcProvider('https://ethereum-sepolia.publicnode.com', {
+const RPC_PROVIDER_URL = 'https://ethereum-sepolia.publicnode.com' // Alt: https://ethereum-sepolia.publicnode.com ; https://1rpc.io/sepolia
+export const provider = new providers.JsonRpcProvider(RPC_PROVIDER_URL, {
   name: 'Sepolia',
   chainId: 11155111,
 })
