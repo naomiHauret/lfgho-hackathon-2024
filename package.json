@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "ghooey:build": "bun build ./src/scripts/ghooey.ts --minify --entry-naming [dir]/[name].min.[ext] --outdir  ./public",
+    "ghooey:build": "bun build ./src/scripts/ghooey.ts --entry-naming [dir]/[name].[ext] --outdir  ./public",
+    "ghooey:build:min": "bun build ./src/scripts/ghooey.ts --minify --entry-naming [dir]/[name].min.[ext] --outdir  ./public",
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
