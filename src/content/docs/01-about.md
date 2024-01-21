@@ -1,9 +1,9 @@
 ---
-title: What is ghooey ?
+title: Why ghooey ?
 description: ghooey is a toolkit for web2 codebases to grow the adoption of web3 through Aave widgets
 ---
 
-# ghooey - what, why and how
+# ghooey - why, what and how
 
 `ghooey` is a versatile toolkit designed for effortlessly constructing interactive websites atop the robust **Aave protocol** using nothing but HTML markup.
 
@@ -21,7 +21,13 @@ By seamlessly integrating `ghooey` into their websites, developers gain the abil
 
 Although the usage of blockchain and DeFi by the finance and banking sectors seems to increase year by year, several industries still remain conservative in regards to technological evolution, which makes them slow to adopt new tools and paradigms for their online experiences.
 
-As of January 2024, [W3Techs](https://w3techs.com/technologies/overview/content_management) reports that **WordPress** (still) dominates, being used by **43.1%** of all websites worldwide, followed by Shopify (4.2%), Wix, Squarespace, Joomla, and Drupal, which means half of all websites run on PHP. Furthermore, **jQuery is employed by over 80% of all websites**, and continues to be a staple in web developer education. In contrast, web3 protocols like Aave often adopt more modern tech stacks such as Next.js/Nuxt.js, React.js/Vue.js, signaling a shift towards contemporary technologies.
+As of January 2024, [W3Techs](https://w3techs.com/technologies/overview/content_management) reports that **WordPress** (still) dominates, being used by **43.1%** of all websites worldwide, followed by Shopify (4.2%), Wix, Squarespace, Joomla, and Drupal, which means half of all websites run on PHP.
+
+<div class="mx-auto">
+  <img src="/cms_usage.png" alt="A chart that display the percentages of websites using various content management systems" />
+</div>
+
+Furthermore, **jQuery is employed by over 80% of all websites**, and continues to be a staple in web developer education. In contrast, web3 protocols like Aave often adopt more modern tech stacks such as Next.js/Nuxt.js, React.js/Vue.js, signaling a shift towards contemporary technologies.
 
 While the topic of tech stacks might appear nerdy or trivial, this discussion holds the key to significantly increasing the adoption of web3 in mainstream industries: if it wants to foster growth and onboard the next billion users, **web3 needs to address developers first and offer tools that are easy to integrate and work with within existing products**.
 
@@ -30,7 +36,8 @@ While the topic of tech stacks might appear nerdy or trivial, this discussion ho
 For neobanks, integrating DeFi features into online products is a straightforward endeavor. However, for established entities and their sometimes dated practices, updating an existing front-end to incorporate new web3 features proves to be quite the challenge:
 
 - **Interacting with smart contracts from the front-end demands a unique skill set,** encompassing familiarity with web3 concepts and tools such as smart contracts, wallets, gas fees, signatures, and specific libraries (e.g., ethers v5/ethers v6/wagmi/viem/web3.js).
-- In many pre-built UI kits, components often **operate in isolation,** making data accessible only through a specific way (e.g., consuming a Context in React) or being confined to the underlying framework, hindering seamless integration with existing products.
+
+- In many pre-built UI kits, components often **operate in isolation,** making data accessible only through a specific way (e.g., consuming a Context in React) or being confined to the underlying framework, hindering seamless integration with existing products. To be able to use those UI kits, the codebase often needs to be written entirely in that underlying framework.
 
 - The underlying styling solutions in certain UI kits necessitate learning new libraries of a quite consequent size, present significant technical trade-offs (e.g., heaviness, inaccessibility, non-SSR-friendly), and offer **limited customization** or are difficult to customize.
 
@@ -38,8 +45,8 @@ For neobanks, integrating DeFi features into online products is a straightforwar
 
 This non-exhaustive list highlights the pressing need for web3 building blocks that cater to a broader audience of developers — developers that, despite not using the latest trend, work with libraries and frameworks that power over 80% of all websites. Onboarding these developers - and products they maintain - is crucial for promoting the use and growth of web3 protocols like Aave. As such, the tools and developer products created must satisfy two key requirements:
 
-- [ ] Easy setup and seamless integration with pre-existing websites
-- [ ] Quick comprehension and user-friendliness for developers accustomed to fundamentally different front-end frameworks
+- [x] Easy setup and seamless integration with pre-existing websites
+- [x] Quick comprehension and user-friendliness for developers accustomed to fundamentally different front-end frameworks
 
 The future is at the crossroads of boring web2 and edge web3, and **this is why tools like `ghooey` are indispensable.**
 

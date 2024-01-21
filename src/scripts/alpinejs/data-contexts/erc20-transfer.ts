@@ -30,7 +30,7 @@ interface SliceDataERC20Transfer {
 
 /**
  * Register a re-usable data slice that enables the current user to transfer a ERC20 token to another Ethereum address using the `transfer()` method from the ERC20 contract.
- * Usage: put `x-data='erc20erc20Transfer'` to give the DOM node + its descendants access to this data slice
+ * Usage: put `x-data='erc20Transfer'` to give the DOM node + its descendants access to this data slice
  * eg: use `@click="transferTokens()"` to call the `transferTokens()`
  * @see https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#IERC20-Transfer-address-address-uint256-
  * @see https://alpinejs.dev/directives/data

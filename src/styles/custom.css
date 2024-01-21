@@ -27,3 +27,8 @@
   --sl-color-gray-7: #f4f8f3;
   --sl-color-black: #ffffff;
 }
+
+.sl-markdown-content ul {
+  @apply !list-disc;
+  padding-inline-start: 4ex !important;
+}

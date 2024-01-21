@@ -24,7 +24,7 @@ interface SliceDataAaveRepayDebt {
 }
 
 /**
- * Register a re-usable data slice that enables the current user to repat their debt via either the `repayWithPermit()` or `repayWithATokens()` contract methods
+ * Register a re-usable data slice that enables the current user to repay their debt via either the `repayWithPermit()` or `repayWithATokens()` contract methods
  * Usage: put `x-data='aaveRepayDebt'` to give the DOM node + its descendants access to this data slice
  * eg: use `@click="repay()"` to call the `repay()` method
  * @see https://github.com/aave/aave-utilities/tree/master#repayWithPermit

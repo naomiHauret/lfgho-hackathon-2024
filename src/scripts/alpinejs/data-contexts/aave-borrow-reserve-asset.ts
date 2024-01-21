@@ -24,7 +24,7 @@ interface SliceDataAaveBorrowReserveAsset {
 }
 
 /**
- * Register a re-usable data slice that enables the current user to borrow a reserver asset from an Aave pool via the `borrow()` contract method
+ * Register a re-usable data slice that enables the current user to borrow a reserve asset from an Aave pool via the `borrow()` contract method
  * Usage: put `x-data='aaveBorrowReserveAsset'` to give the DOM node + its descendants access to this data slice
  * eg: use `@click="borrow()"` to call the `borrow()` method
  * @see https://github.com/aave/aave-utilities/tree/master#borrow

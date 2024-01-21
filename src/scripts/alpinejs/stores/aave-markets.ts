@@ -13,7 +13,7 @@ interface StoreAaveMarkets {
 }
 
 /**
- * Register a global store to:
+ * Register a global store to access Aave markets data
  * 
  * Usage: put `x-data` to give the DOM node + its descendants access to this global store
  * Usage: use "$store.aaveMarkets.<property defined below>" to access any value defined in the store
