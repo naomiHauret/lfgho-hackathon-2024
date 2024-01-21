@@ -1,5 +1,6 @@
 ---
 import TipCreator from './../../components/TipCreator.astro'
+import Borrow from './../../components/Borrow.astro'
 ---
 
 <html lang="en">
@@ -11,7 +12,7 @@ import TipCreator from './../../components/TipCreator.astro'
     <title>Examples built with ghooey - toolkit to build custom Aave widgets</title>
   </head>
   <body class="flex h-full flex-col">
-    <div class="mx-auto px-3 flex flex-col max-w-prose pt-12">
+    <div class="mx-auto px-3 flex flex-col max-w-prose pb-24 pt-12">
       <h1 class="text-center pb-8">
         <span
           class="text-5xl font-bold block pb-[0.5ch] text-lime-500 tracking-widest hover:tracking-wide transition-all"
@@ -41,6 +42,13 @@ import TipCreator from './../../components/TipCreator.astro'
             </p>
           </div>
           <TipCreator />
+        </section>
+        <section>
+          <div class="p-3 mb-6 rounded-lg text-sm bg-lime-50">
+            <h1 class="font-bold text-lime-900">Borrow GHO</h1>
+            <p class="text-gray-600">A widget that allows the connected user to borrow GHO.</p>
+          </div>
+          <Borrow />
         </section>
       </div>
     </div>

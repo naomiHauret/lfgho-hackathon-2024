@@ -41,15 +41,15 @@
                 >
                 </p>
               </template>
-
-              <button
-                x-show="$store.currentUser"
-                x-text="['connecting', 'reconnecting'].includes($store.currentUser.status) ? 'Tip' : status === 'signaturePending' ? 'Confirm...' : status === 'transactionPending' ? 'Sending...' : 'Send ' + $formatERC20Balance(amount, 'GHO')"
-                :aria-disabled="['signaturePending','transactionPending'].includes(status) || $store?.currentUser.status !== 'connected' || $store?.currentUser?.assets?.fetchStatus === 'pending' || parseFloat($store.currentUser?.assets?.balances?.GHO?.formatted ?? 0) <= 0 ? true : false"
-                class="py-[0.35em] w-full px-[0.5em] rounded-[0.25em] font-bold bg-lime-500 text-lime-50 aria-[disabled='true']:opacity-50 aria-[disabled='true']:pointer-events-none"
-              >
-              </button>
             </div>
+
+            <button
+              x-show="$store.currentUser"
+              x-text="['connecting', 'reconnecting'].includes($store.currentUser.status) ? 'Tip' : status === 'signaturePending' ? 'Confirm...' : status === 'transactionPending' ? 'Sending...' : 'Send ' + $formatERC20Balance(amount, 'GHO')"
+              :aria-disabled="['signaturePending','transactionPending'].includes(status) || $store?.currentUser.status !== 'connected' || $store?.currentUser?.assets?.fetchStatus === 'pending' || parseFloat($store.currentUser?.assets?.balances?.GHO?.formatted ?? 0) <= 0 || amount === 0 ? true : false"
+              class="py-[0.35em] w-full px-[0.5em] rounded-[0.25em] font-bold bg-lime-500 text-lime-50 aria-[disabled='true']:opacity-50 aria-[disabled='true']:pointer-events-none"
+            >
+            </button>
           </form>
         </template>
       </div>

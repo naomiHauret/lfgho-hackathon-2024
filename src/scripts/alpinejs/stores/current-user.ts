@@ -391,6 +391,7 @@ export function registerStoreCurrentUser(storeName: string) {
         collateralUsage,
       }
       summary.availableBorrowsMarketReferenceCurrency
+      console.log(this.aavePortfolio.summary)
       this.aavePortfolio.fetchStatus = 'success'
     },
     /**

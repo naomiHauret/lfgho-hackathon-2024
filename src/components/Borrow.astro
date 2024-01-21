@@ -1,0 +1,99 @@
+<template x-if="$store.currentUser.account">
+  <section class="border rounded-md border-slate-300 p-3">
+    <template x-if="!$store.currentUser?.aavePortfolio?.summary">
+      <p class="text-center text-slate-500 text-sm animate-pulse">Retrieving your portfolio data, one moment...</p>
+    </template>
+    <template x-if="$store.currentUser?.aavePortfolio?.summary">
+      <div
+        x-data="{...aaveBorrowReserveAsset(),   walletPortfolioSummary: $store.currentUser?.aavePortfolio?.summary}"
+        x-init=`
+  market = 'GHO';
+  token = $aaveAssetBySymbol(market);
+  interestRateMode= 'Variable';
+  amount = 1;
+  userAssetData = $store.currentUser?.aavePortfolio?.summary.userReservesData.filter(reserve =>  token.UNDERLYING.toLowerCase() === reserve.underlyingAsset.toLowerCase())[0];
+  maxBorrowableAmount = parseFloat(userAssetData.reserve.maxGhoMintAmount) < parseFloat(userAssetData.reserve.formattedAvailableLiquidity) ? parseFloat(userAssetData.reserve.maxGhoMintAmount): parseFloat(userAssetData.reserve.formattedAvailableLiquidity)
+  `
+      >
+        <form @submit.prevent="borrow()">
+          <div>
+            <div class="pb-5">
+              <div class="flex items-center pb-0.5 gap-1.5">
+                <label class="text-sm text-slate-600" for="tip">Borrow</label>
+                <input
+                  class="w-full border-slate-300 text-slate-800 border rounded-sm p-0.5"
+                  x-model.number="amount"
+                  min="0.000001"
+                  max="maxBorrowableAmount"
+                  id="tip"
+                  type="number"
+                  placeholder="1.00"
+                  step="0.000001"
+                />
+              </div>
+              <template x-if="!$store.currentUser.assets?.balances?.GHO?.formatted">
+                <p class="text-sm animate-pulse text-slate-500">Retrieving your portfolio data, one moment...</p>
+              </template>
+              <template x-if="$store.currentUser.assets?.balances?.GHO?.formatted">
+                <p
+                  x-text="'You can borrow up to: ' + $formatERC20Balance(maxBorrowableAmount, 'GHO') "
+                  class="text-sm"
+                  :class="amount > maxBorrowableAmount ? 'text-red-600' : 'text-slate-700'"
+                >
+                </p>
+              </template>
+            </div>
+
+            <button
+              x-show="$store.currentUser"
+              x-text="['connecting', 'reconnecting'].includes($store.currentUser.status) ? 'Borrow' : status === 'signaturePending' ? 'Confirm...' : status === 'transactionPending' ? 'Borrowing...' : 'Borrow ' + $formatERC20Balance(amount, 'GHO')"
+              :aria-disabled="['signaturePending','transactionPending'].includes(status) || $store?.currentUser.status !== 'connected' || $store?.currentUser?.assets?.fetchStatus === 'pending' || amount > maxBorrowableAmount || amount === 0 ? true : false"
+              class="py-[0.35em] w-full px-[0.5em] rounded-[0.25em] font-bold bg-lime-500 text-lime-50 aria-[disabled='true']:opacity-50 aria-[disabled='true']:pointer-events-none"
+            >
+            </button>
+          </div>
+        </form>
+        <hr class="my-6" />
+        <section class="text-sm grid gap-3 text-gray-600">
+          <template x-if="$store.currentUser?.aavePortfolio.fetchStatus === 'refreshing'">
+            <p class="animate-pulse">Refreshing portfolio, one moment...</p>
+          </template>
+          <section>
+            <h1>Currently, you're worth:</h1>
+            <p x-text="$formatNumber(walletPortfolioSummary.netWorthUSD, { style: 'currency', currency: 'USD', })"></p>
+          </section>
+          <section>
+            <h1>Currently, you're supplying:</h1>
+            <p x-text="$formatNumber(walletPortfolioSummary.totalCollateralUSD, { style: 'currency', currency: 'USD'})">
+            </p>
+          </section>
+          <section>
+            <h1>Currently, you've borrowed:</h1>
+            <p x-text="$formatNumber(walletPortfolioSummary.totalBorrowsUSD, { style: 'currency', currency: 'USD'})">
+            </p>
+            <p
+              x-text="'of which ' + $formatERC20Balance(userAssetData.totalBorrows, 'GHO') + '('+ $formatNumber(userAssetData.stableBorrowsUSD, { style: 'currency', currency: 'USD'}) +')'"
+            >
+            </p>
+          </section>
+          <section>
+            <h1>Currently, you can borrow up to:</h1>
+            <p
+              x-text="$formatNumber(walletPortfolioSummary.availableBorrowsUSD, { style: 'currency', currency: 'USD'})"
+            >
+            </p>
+          </section>
+          <section>
+            <h1>Your health factor:</h1>
+            <p x-text="$formatNumber(walletPortfolioSummary.healthFactor)"></p>
+          </section>
+
+          <section>
+            <h1>Collateral usage</h1>
+            <p x-text="$formatNumber(walletPortfolioSummary.collateralUsage, { style: 'percent' })"></p>
+          </section>
+        </section>
+      </div>
+    </template>
+  </section>
+</template>
