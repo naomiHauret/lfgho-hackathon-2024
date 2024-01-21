@@ -20,10 +20,25 @@ import Borrow from './../../components/Borrow.astro'
         >
         <span class="text-sm text-gray-600">custom widgets examples</span>
       </h1>
+      <nav class="flex flex-wrap pb-3 gap-3 mx-auto">
+        <a
+          class="text-lime-800 underline font-bold hover:no-underline focus:no-underline hover:text-lime-600 focus:text-lime-900"
+          href="/00-overview">Docs</a
+        >
+        <a
+          class="text-lime-800 underline font-bold hover:no-underline focus:no-underline hover:text-lime-600 focus:text-lime-900"
+          href="/examples">Examples</a
+        >
+        <a
+          class="text-lime-800 underline font-bold hover:no-underline focus:no-underline hover:text-lime-600 focus:text-lime-900"
+          target="_blank"
+          href="https://github.com/naomiHauret/lfgho-hackathon-2024">Github</a
+        >
+      </nav>
       <hr />
       <div class="pt-6 grid gap-12" x-data>
         <template x-if="!$store.currentUser.account">
-          <div>
+          <div class="flex flex-col items-center gap-3">
             <p class="text-sm text-center text-slate-600">Connect with a web3 wallet to use the demo widgets.</p>
             <button
               :class="$store.currentUser.status === 'connecting' && 'animate-pulse'"
