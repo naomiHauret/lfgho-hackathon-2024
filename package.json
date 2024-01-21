@@ -16,6 +16,7 @@
     "@aave/contract-helpers": "^1.23.0",
     "@aave/math-utils": "^1.23.0",
     "@astrojs/check": "^0.4.1",
+    "@astrojs/starlight": "^0.16.0",
     "@astrojs/tailwind": "^5.1.0",
     "@bgd-labs/aave-address-book": "^2.17.0",
     "@types/alpinejs": "^3.13.6",
