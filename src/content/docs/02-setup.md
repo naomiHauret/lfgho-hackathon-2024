@@ -59,15 +59,15 @@ In this example, the paragraph's text content is dynamically bound to the proper
 
 - `walletAavePortfolio`, to get the detailed summary of the Aave portfolio of a given Ethereum wallet ;
 
-- `aaveSupply` enable connected users to supply a ERC20 token that's ERC-2612 compatible to an Aave pool ;
+- `aaveSupply` enables connected users to supply a ERC20 token that's ERC-2612 compatible to an Aave pool ;
 
-- `aaveBorrowReserveAsset` enable connected users to borrow a reserve asset from an Aave pool (**requires the user to have supplied to a pool**) ;
+- `aaveBorrowReserveAsset` enables connected users to borrow a reserve asset from an Aave pool (**requires the user to have supplied to a pool**) ;
 
-- `aaveRepayDebt` enable connected users to repay their Aave loan using their balance of the same token they borrowed ;
+- `aaveRepayDebt` enables connected users to repay their Aave loan using their balance of the same token they borrowed ;
 
-- `aaveRepayDebt` enable connected users to repay their Aave loan using their balance of the same token they borrowed ;
+- `aaveRepayDebt` enables connected users to repay their Aave loan using their balance of the same token they borrowed ;
 
-- `aaveWithdrawAsset` enable connected users to withdraw the assets they supplied to an Aave pool ;
+- `aaveWithdrawAsset` enables connected users to withdraw the assets they supplied to an Aave pool ;
 
 - `aaveCredit` - WIP - will enable connected users to delegate their borrowing power to other Ethereum addresses (which can mean other users or smart contracts).
 
@@ -93,5 +93,8 @@ Here is a list of all custom events :
 - `"USER_WITHDRAW_ASSETS"` - dispatched when a `"Withdraw"` onchain event involving the currently connected wallet address occurs ;
 
 ---
+
+By extending Alpine with global stores and reusable states, ghooey gives to developers  access to custom properties and attributes which, under the hood and with the help of the `aave-utilities`  package, unlock performing onchain operations (like `borrow()` or `supplyWithPermit()`).
+Typically, one reusable exposes an Aave functionality, along with useful user indicators, like `fetchStatus` for instance.
 
 This overview should allow you to quickly build a widget for your product, from a simple button that will send a tip with a fixed amount of a specific ERC20 token to a complete stable-rate loan provider.
