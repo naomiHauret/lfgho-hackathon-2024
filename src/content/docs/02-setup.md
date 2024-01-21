@@ -94,7 +94,7 @@ Here is a list of all custom events :
 
 ---
 
-By extending Alpine with global stores and reusable states, ghooey gives to developers  access to custom properties and attributes which, under the hood and with the help of the `aave-utilities`  package, unlock performing onchain operations (like `borrow()` or `supplyWithPermit()`).
+By extending Alpine with global stores and reusable states, ghooey gives to developers access to custom properties and attributes which, under the hood and with the help of the `aave-utilities` package, unlock performing onchain operations (like `borrow()` or `supplyWithPermit()`).
 Typically, one reusable exposes an Aave functionality, along with useful user indicators, like `fetchStatus` for instance.
 
 This overview should allow you to quickly build a widget for your product, from a simple button that will send a tip with a fixed amount of a specific ERC20 token to a complete stable-rate loan provider.

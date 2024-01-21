@@ -2,6 +2,7 @@
 
 <img src="/logo.png" style="margin:auto; padding-bottom:32px;"/>
 
+[Website](https://ghooey.netlify.app/) | [Docs](https://ghooey.netlify.app/00-overview) | [Example widgets](https://ghooey.netlify.app/examples/)
 
 `ghooey` is a solo proof-of-concept built in ~ 5 days during the **[LFGHO 2024 hackathon](https://ethglobal.com/events/lfgho)** built primarily with [`Alpine.js`](https://alpinejs.dev/) and [`aave-utilities`](https://github.com/aave/aave-utilities), with a documentation website built with [Astro](https://astro.build/) and [Starlight](https://starlight.astro.build/).
 

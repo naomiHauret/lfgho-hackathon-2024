@@ -22,3 +22,11 @@ By seamlessly integrating `ghooey` into their websites, developers would gain th
 > - **GUI**, _Graphical User Interface_
 > - **gooey**, as this toolkit aims to offer flexibility in terms of how to implement a feature
 > - **GHO**, the Aave stablecoin and focus of the hackathon
+
+---
+
+## Relevant links
+
+- [Website](https://ghooey.netlify.app/)
+- [Docs](https://ghooey.netlify.app/00-overview) (you're here !)
+- [Example widgets](https://ghooey.netlify.app/examples/)
