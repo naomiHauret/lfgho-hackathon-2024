@@ -1,94 +1,60 @@
 # ghooey
 
-LFGHO 2024 hackathon entry.
+<img src="/logo.png" style="margin:auto; padding-bottom:32px;"/>
 
-`ghooey` is a drop-in toolkit that includes both primitives and customizable widgets. With `ghooey`, developers can easily put together and customize a delightful front-end experience to assist their users with the Aave ecosystem and perform tasks such as :
 
-- View the assets they are currently lending and borrowing ;
-- Delegating their borrowing capacities to another wallet/smart contract address ;
-- Borrow GHO on another user's behalf ;
-- Repay previously mentioned loan ;
+`ghooey` is a solo proof-of-concept built in ~ 5 days during the **[LFGHO 2024 hackathon](https://ethglobal.com/events/lfgho)** built primarily with [`Alpine.js`](https://alpinejs.dev/) and [`aave-utilities`](https://github.com/aave/aave-utilities), with a documentation website built with [Astro](https://astro.build/) and [Starlight](https://starlight.astro.build/).
 
-## Why ghooey ?
+`ghooey` is designed to be a **versatile drop-in front-end toolkit** to help developers **build and integrate Aave widgets in their existing codebase** with just a bit of HTML markup.
 
-Building a front-end for a web3 protocol can be a daunting experience.
+> The baseline is to help promote the growth the adoption of web3 protocols in web2 products through **developer experience**.
 
-- **Interacting with smart contracts from the front-end is a skillset in itself** that requires not only to **be familiar with web3** (eg: what's a smart contract, what's a wallet, how to setup a wallet, what are gas fees and signatures, how to get gas...) **but also being able to use specific tools and concepts** (finding the ABI of a contract for a specific network, ethers v5/ethers v6/wagmi/viem/web3.js, wallet libraries, what parameters to pass to a contract method etc.)
+By seamlessly integrating `ghooey` into their websites, developers would gain the ability to create tailor-made widgets, facilitating user onboarding onto the Aave ecosystem. It implements the rails to integrate the following features that would allow users to :
 
-- In many UI kits, the components tend to operate in isolation and/or can only work within the underlying framework
+- Monitor their Aave portfolio
+- Deposit and borrow liquidity from Aave markets
+- Transfer liquidities and delegate their borrowing powers to other users
 
-- The underlying styling solution of certain UI kits require to learn a new library, offer little customization/are very hard to customize, or have major technical trade-offs (too heavy, not accessible, not SSR-friendly...)
+> The name **ghooey** is actually a play on words :
+>
+> - **GUI**, _Graphical User Interface_
+> - **gooey**, as this toolkit aims to offer flexibility in terms of how to implement a feature
+> - **GHO**, the Aave stablecoin and focus of the hackathon
 
-- Dependency clashes are a painful reality (eg: your website is using React 16 but the UI Kit supports v18 onwards and onwards ; the UI kit uses a CSS-in-JS library not compatible with your front-end library etc)
+But why would `ghooey` be useful to the Aave ecosystem exactly ? Let's explore the motivations behind this hackathon idea.
 
-- Aave V3 offers a rich, tested TypeScript SDK that offers all the necessary functions to interact with the protocol
+### Modern DeFi, Dated TradFi: tooling contrast
 
-- According to W3Techs (World Wide Web Technology Surveys), as of January 2024, Wordpress is used by **43.1%** of all websites on the Internet (followed by Shopify with 4.2%, Wix, Squarespace, Joomla and Drupal). More than 1/2 websites relies on PHP. jQuery is still used by over 80% of all websites and is still taught to web developers.
+Although the usage of blockchain and DeFi by the finance and banking sectors seems to increase year by year, several industries still remain conservative in regards to technological evolution, which makes them slow to adopt new tools and paradigms for their online experiences.
 
-| If web3 technology wants to grow, **it has to be compatible and easy to bootstramp and use for developers**. A no-build, template friendly and back-end agnostic toolkit is essential to promote the use and growth of web3 tools.
+As of January 2024, [W3Techs](https://w3techs.com/technologies/overview/content_management) reports that **WordPress** (still) dominates, being used by **43.1%** of all websites worldwide, followed by Shopify (4.2%), Wix, Squarespace, Joomla, and Drupal, which means half of all websites run on PHP.
 
-**This is where ghooey can fit. ghooey is a drop-in front-end toolkit that includes both primitives and customizable widgets to interact with the Aave ecosystem with no compromise between freedom, usability and reliability**.
+<div style="margin:auto;">
+  <img src="/cms_usage.png" alt="A chart that display the percentages of websites using various content management systems" />
+</div>
 
-Built with Alpine.js, a lightweight, minimal javascript framework that works with your existing markup, **ghooey** makes building a custom front-end that interacts with Aave a breeze: setup Alpine and drop the following script at the end of the `<body>` tag of your website.
+Furthermore, **jQuery is employed by over 80% of all websites**, and continues to be a staple in web developer education. In contrast, web3 protocols like Aave often adopt more modern tech stacks such as Next.js/Nuxt.js, React.js/Vue.js, signaling a shift towards contemporary technologies.
 
-```html
-<body>
-  <!-- > ... <-->
-  <script src="/path/to/public-folder/ghooey.js">
-    setupGhooey()
-  </script>
-</body>
-```
+While the topic of tech stacks might appear nerdy or trivial, this discussion holds the key to significantly increasing the adoption of web3 in mainstream industries: if it wants to foster growth and onboard the next billion users, **web3 needs to address developers first and offer tools that are easy to integrate and work with within existing products**.
 
-Now, you can use Alpine directives based on ghooey snippets in your markup to unlock Aave features for your users on your website.
+### What building on web3 means
 
-For instance, by using the snippet below, a user with their wallet connected will see :
+For neobanks, integrating DeFi features into online products is a straightforward endeavor. However, for established entities and their sometimes dated practices, updating an existing front-end to incorporate new web3 features proves to be quite the challenge:
 
-1. A loading indicator for their summary
-2. Their wallet summary which contains the total amount in USD they can borrown, and their collateral usage in %.
+- **Interacting with smart contracts from the front-end demands a unique skill set,** encompassing familiarity with web3 concepts and tools such as smart contracts, wallets, gas fees, signatures, and specific libraries (e.g., ethers v5/ethers v6/wagmi/viem/web3.js).
 
-```html
-<body x-data>
-  <!-- > ... <-->
-  <div x-data="walletAavePortfolio" x-init="address = $store.currentUser.account" x-effect="getSummary()">
-    <template x-if="fetchStatus === 'pending' ">
-      <span x-text="'Loading ' + address + ' summary...'"></span>
-    </template>
-    <template x-if="fetchStatus === 'success' ">
-      <article x-data="{ profile: address }">
-        <span x-text="'Summary for ' + profile"></span>
-        <section>
-          <h1>Total amount available to borrow (in USD)</h1>
-          <p
-            x-text="new Intl.NumberFormat(navigator.language, { style: 'currency', currency: 'USD', }).format(summary.availableBorrowsUSD)"
-          ></p>
-        </section>
-        <section>
-          <h1>Collateral usage</h1>
-          <p
-            x-text="new Intl.NumberFormat(navigator.language, { style: 'percent' }).format(summary.collateralUsage)"
-          ></p>
-        </section>
-      </article>
-    </template>
-  </div>
-  <!-- > ... <-->
-</body>
-```
+- In many pre-built UI kits, components often **operate in isolation,** making data accessible only through a specific way (e.g., consuming a Context in React) or being confined to the underlying framework, hindering seamless integration with existing products. To be able to use those UI kits, the codebase often needs to be written entirely in that underlying framework.
 
-The markup and style are completely customizable: the developers just need to use Alpine directives (like `x-data`, `x-init`...)
+- The underlying styling solutions in certain UI kits necessitate learning new libraries of a quite consequent size, present significant technical trade-offs (e.g., heaviness, inaccessibility, non-SSR-friendly), and offer **limited customization** or are difficult to customize.
 
-### How does it work ?
+- Some UI kits may require a build/bundling step with a tool incompatible with the underlying tech stack.
 
-The main script (`ghooey.js`) uses `window.ethereum` events to interact and watch the current user's wallet, as well as Alpine stores (global state) and contexts (local state) to interact with Aave smart contracts (read/write).
+This non-exhaustive list highlights the pressing need for web3 building blocks that cater to a broader audience of developers — developers that, despite not using the latest trend, work with libraries and frameworks that power over 80% of all websites. Onboarding these developers - and products they maintain - is crucial for promoting the use and growth of web3 protocols like Aave. As such, the tools and developer products created must satisfy two key requirements:
 
-Any Aave related data (market reserves, user positions etc) uses a mix of `@aave/contract-helpers`, `@aave/math-utils`, and `@bgd-labs/aave-address-book`.
+- [x] Easy setup and seamless integration with pre-existing websites
+- [x] Quick comprehension and user-friendliness for developers accustomed to fundamentally different front-end frameworks
 
-### Who is ghooey for ?
-
-`ghooey` is primarily aimed at developers that have an existing codebase built on the "boring" web and would like to quickly implement a widget instead of a full-blown dapp while avoiding common the pitfalls of many web3 component libraries..
-
-Alternatively, ghooey could also be used by developers who want to prototype a UI for a smart contract feature without setting up an entire app using Vite/Next, or having to be fluent in modern front-end frameworks.
+The future is at the crossroads of boring web2 and edge web3. **This is why tools we need to build developer toolkits like `ghooey`.**
 
 ---
 

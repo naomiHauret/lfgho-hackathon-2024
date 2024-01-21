@@ -9,7 +9,7 @@ description: ghooey is a toolkit for web2 codebases to grow the adoption of web3
 
 > **Aave** stands as a decentralized, non-custodial liquidity market protocol, where users can engage as either suppliers or borrowers. Suppliers contribute liquidity to earn passive income, while borrowers can access overcollateralized (perpetual) or undercollateralized (one-block liquidity) loans.
 
-By seamlessly integrating `ghooey` into their websites, developers gain the ability to create tailor-made widgets, facilitating user onboarding onto the Aave ecosystem. These widgets empower users to:
+By seamlessly integrating `ghooey` into their websites, developers gain the ability to create tailor-made widgets, facilitating user onboarding onto the Aave ecosystem. These widgets allow end-users to:
 
 - Monitor their Aave portfolio
 - Deposit and borrow liquidity from Aave markets
@@ -48,7 +48,7 @@ This non-exhaustive list highlights the pressing need for web3 building blocks t
 - [x] Easy setup and seamless integration with pre-existing websites
 - [x] Quick comprehension and user-friendliness for developers accustomed to fundamentally different front-end frameworks
 
-The future is at the crossroads of boring web2 and edge web3, and **this is why tools like `ghooey` are indispensable.**
+The future is at the crossroads of boring web2 and edge web3. **This is why tools we need to build developer toolkits like `ghooey`.**
 
 ## _What_ is `ghooey` ?
 
