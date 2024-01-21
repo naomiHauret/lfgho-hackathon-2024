@@ -1,3 +1,7 @@
+---
+import TipCreator from './../../components/TipCreator.astro'
+---
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -7,7 +11,7 @@
     <title>Examples built with ghooey - toolkit to build custom Aave widgets</title>
   </head>
   <body class="flex h-full flex-col">
-    <div class="px-3 pt-12">
+    <div class="mx-auto px-3 flex flex-col max-w-prose pt-12">
       <h1 class="text-center pb-8">
         <span
           class="text-5xl font-bold block pb-[0.5ch] text-lime-500 tracking-widest hover:tracking-wide transition-all"
@@ -15,6 +19,30 @@
         >
         <span class="text-sm text-gray-600">custom widgets examples</span>
       </h1>
+      <hr />
+      <div class="pt-6 grid gap-12" x-data>
+        <template x-if="!$store.currentUser.account">
+          <div>
+            <p class="text-sm text-center text-slate-600">Connect with a web3 wallet to use the demo widgets.</p>
+            <button
+              :class="$store.currentUser.status === 'connecting' && 'animate-pulse'"
+              :aria-disabled="['connecting', 'reconnecting'].includes($store.currentUser.status) ? true : false"
+              class="py-[0.35em] px-[0.5em] rounded-[0.25em] font-bold aria-[disabled]:pointer-events-none bg-lime-500 text-lime-50"
+              aria-label="Connect via your web3 browser wallet (Metamask, Taho...)"
+              x-text="['connecting'].includes($store.currentUser.status) ? 'Connecting...' : 'Connect'"
+              @click="$store.currentUser.connect()"></button>
+          </div>
+        </template>
+        <section>
+          <div class="p-3 mb-6 rounded-lg text-sm bg-lime-50">
+            <h1 class="font-bold text-lime-900">Tip creator</h1>
+            <p class="text-gray-600">
+              A widget that allows users to tip a creator. Showcases peer-to-peer GHO transfer.
+            </p>
+          </div>
+          <TipCreator />
+        </section>
+      </div>
     </div>
     <script>
       import Alpine from 'alpinejs'
