@@ -1,0 +1,30 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Examples of Aave widgets built with ghooey and Alpine.js" />
+    <title>Examples built with ghooey - toolkit to build custom Aave widgets</title>
+  </head>
+  <body class="flex h-full flex-col">
+    <div class="px-3 pt-12">
+      <h1 class="text-center pb-8">
+        <span
+          class="text-5xl font-bold block pb-[0.5ch] text-lime-500 tracking-widest hover:tracking-wide transition-all"
+          >ghooey</span
+        >
+        <span class="text-sm text-gray-600">custom widgets examples</span>
+      </h1>
+    </div>
+    <script>
+      import Alpine from 'alpinejs'
+      import { setupGhooey } from './../../scripts/ghooey'
+      window.Alpine = Alpine
+
+      // Give ghooey elements super powers !
+      setupGhooey()
+
+      window.Alpine.start()
+    </script>
+  </body>
+</html>

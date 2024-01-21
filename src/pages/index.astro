@@ -1,139 +1,81 @@
----
-import GhooeyWallet from '../components/GhooeyWallet.astro'
-import GhooeyWalletSummary from '../components/GhooeyWalletSummary.astro'
-import GhooeyAsset from '../components/GhooeyAsset.astro'
-import GhooeyAssetTransfer from '../components/GhooeyAssetTransfer.astro'
-import GhooeyUserReserveHoldings from '../components/GhooeyUserReserveHoldings.astro'
-import GhooeyUserAssetsBalance from '../components/GhooeyUserAssetsBalance.astro'
-import GhooeyLend from '../components/GhooeyLend.astro'
-import GhooeyBorrow from '../components/GhooeyBorrow.astro'
-import GhooeyRepayDebt from '../components/GhooeyRepayDebt.astro'
-import GhooeyWithdrawAsset from '../components/GhooeyWithdrawAsset.astro'
-import Instructions from './../components/Instructions.md'
----
-
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.png" />
     <meta name="viewport" content="width=device-width" />
-    <title>ghooey: drop-in UI & primitives toolkit for Aave</title>
+    <meta
+      name="description"
+      content="ghooey is versatile drop-in front-end toolkit designed to allow developers to easily build and integrate Aave widgets in their existing codebase."
+    />
+    <title>ghooey: drop-in toolkit to build custom Aave widgets</title>
   </head>
-  <body class="bg-lime-50">
-    <div class="px-3 pt-12 mx-auto max-w-prose">
-      <section class="pb-12 text-gray-700">
-        <h1 class="text-3xl text-center text-gray-900 pb-3 font-bold">ghooey</h1>
-        <div class="[&_img]:mx-auto [&_img]:pb-6 p-3 text-md text-center rounded-lg">
-          <Instructions />
-        </div>
-      </section>
-      <div class="grid gap-6 divide-y divide-neutral-200" x-data>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Withdraw supplied assets</h1>
-            <p class="text-gray-800">
-              To withdraw assets from a supply position, use the `aaveWithdrawAsset` data slice. This can be used to
-              build a credit widget.
+  <body class="flex h-full flex-col items-center bg-lime-50">
+    <div class="px-3 pt-12 pb-16 grid gap-y-6 mx-auto max-w-prose">
+      <div class="grid gap-6">
+        <section>
+          <h1
+            class="text-5xl tracking-widest hover:tracking-wide transition-all text-center text-lime-500 pb-8 font-bold"
+          >
+            ghooey
+          </h1>
+          <div class="gap-y-6 grid text-center">
+            <img src="/logo.png" class="max-w-[250px] mx-auto" />
+            <p class="text-lg rounded-[1.5em] px-[1.25em] pt-[1em] pb-[1.2em] bg-lime-200 text-lime-900">
+              <span class="font-bold">ghooey</span> is a versatile drop-in front-end toolkit designed to allow developers
+              to easily build and integrate Aave widgets in their existing codebase.
             </p>
           </div>
-          <GhooeyWithdrawAsset />
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Repay debt</h1>
-            <p class="text-gray-800">
-              To repay debt, use the `aaveRepayDebt` data slice. This can be used to build a credit widget.
-            </p>
-          </div>
-          <GhooeyRepayDebt />
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Borrow asset</h1>
-            <p class="text-gray-800">
-              To borrow an asset, we use the `aaveBorrowReserveAsset` data slice. This can be used to build a credit
-              widget.
-            </p>
-          </div>
-          <GhooeyBorrow />
-        </div>
-
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Supply/lend asset</h1>
-            <p class="text-gray-800">
-              To lend an asset, we use the `aaveSupply` data slice. This can be used to build a lending widget.
-            </p>
-          </div>
-          <GhooeyLend />
-        </div>
-
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Transfer asset</h1>
-            <p class="text-gray-800">
-              To transfer asset, we use the `erc20Transfer` data slice, which exposes the `transferToken()` function.
-              This can be used to build peer-to-peer UIs, checkout button, donation button...
-            </p>
-          </div>
-          <GhooeyAssetTransfer />
-        </div>
-
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Asset</h1>
-            <p class="text-gray-800">An asset, accessed via magic property</p>
-          </div>
-          <GhooeyAsset />
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Connnect wallet</h1>
-            <p class="text-gray-800">Global store that exposes the wallet that's currently connected.</p>
-          </div>
-          <GhooeyWallet />
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Wallet summary (given address)</h1>
-            <p class="text-gray-800">Provides a summary of a given Ethereum address' positions, borrowing power.</p>
-          </div>
-          <GhooeyWalletSummary walletAddress="'0xE665CEf14cB016b37014D0BDEAB4A693c3F46Cc0'" />
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Wallet summary (current user)</h1>
-            <p class="text-gray-800">Provides a summary of current user's positions, borrowing power.</p>
-          </div>
-          <template x-if="$store.currentUser.account">
-            <GhooeyWalletSummary walletAddress="$store.currentUser.account" />
-          </template>
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Wallet holdings (current user)</h1>
-            <p class="text-gray-800">Provides a summary of current user's holdings.</p>
-          </div>
-          <GhooeyUserReserveHoldings />
-        </div>
-        <div>
-          <div class="mb-8 p-6 rounded-lg bg-gray-100">
-            <h1 class="font-bold text-gray-700 text-lg">Wallet holdings (current user)</h1>
-            <p class="text-gray-800">Provides a summary of current user's holdings.</p>
-          </div>
-          <GhooeyUserAssetsBalance />
-        </div>
+        </section>
+        <nav class="flex flex-wrap gap-3 mx-auto">
+          <a
+            class="text-lime-800 underline font-bold hover:no-underline focus:no-underline hover:text-lime-600 focus:text-lime-900"
+            href="/00-overview">Docs</a
+          >
+          <a
+            class="text-lime-800 underline font-bold hover:no-underline focus:no-underline hover:text-lime-600 focus:text-lime-900"
+            href="/examples">Examples</a
+          >
+          <a
+            class="text-lime-800 underline font-bold hover:no-underline focus:no-underline hover:text-lime-600 focus:text-lime-900"
+            target="_blank"
+            href="https://github.com/naomiHauret/lfgho-hackathon-2024">Github</a
+          >
+        </nav>
       </div>
-      <script>
-        import Alpine from 'alpinejs'
-        import { setupGhooey } from './../scripts/ghooey'
-        window.Alpine = Alpine
-
-        // Give ghooey elements super powers !
-        setupGhooey()
-
-        window.Alpine.start()
-      </script>
+      <section class="text-gray-600">
+        <p>
+          Built on top of <a
+            class="font-bold text-gray-600 underline hover:no-underline focus:no-underline hover:text-gray-500 focus:text-gray-700"
+            target="_blank"
+            href="https://alpinejs.dev/">Alpine.js</a
+          > and <a
+            class="text-gray-600 underline hover:no-underline focus:no-underline hover:text-gray-500 focus:text-gray-700"
+            target="_blank"
+            href="https://github.com/aave/aave-utilities">aave-utilities</a
+          >, <span class="text-lime-600 font-bold">ghooey</span> makes it easy for developers to build widgets that integrate
+          <a
+            href="https://aave.com/"
+            class="font-bold text-gray-600 underline hover:no-underline focus:no-underline hover:text-gray-500 focus:text-gray-700"
+            target="_blank">Aave</a
+          > features like :
+        </p>
+        <ul class="list-disc py-3 ps-[3ex]">
+          <li>Monitor their Aave portfolio ;</li>
+          <li>Deposit and borrow liquidity from Aave markets ;</li>
+          <li>Transfer liquidities and delegate their borrowing powers to other users ;</li>
+          <li>Display Aave markets data in real time ;</li>
+        </ul>
+      </section>
+      <section>
+        <p class="text-center text-gray-600">
+          Ultimately, the goal of <span class="text-lime-600 font-bold">ghooey</span> is to help promote the growth the adoption
+          of web3 protocols in web2 products by offering a <span class="font-bold"
+            >developer experience that would be enjoyable even when working with a "dated" or "back-end oriented" tech
+            stack</span
+          >
+          <span class="text-xs">(which is actually most websites out there)</span>.
+        </p>
+      </section>
     </div>
   </body>
 </html>

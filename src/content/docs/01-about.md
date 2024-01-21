@@ -1,5 +1,5 @@
 ---
-title: Why ghooey ?
+title: Motivations
 description: ghooey is a toolkit for web2 codebases to grow the adoption of web3 through Aave widgets
 ---
 
