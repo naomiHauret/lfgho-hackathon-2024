@@ -1,0 +1,48 @@
+---
+const { walletAddress } = Astro.props
+---
+
+<div x-data="walletAavePortfolio" x-init=`address = ${walletAddress}` x-effect="getSummary()">
+  <template x-if="fetchStatus === 'pending' ">
+    <span x-text="'Loading ' + address + ' summary...'"></span>
+  </template>
+  <template x-if="fetchStatus === 'success' ">
+    <article x-data="{ profile: address }">
+      <span x-text="'Summary for ' + profile"></span>
+      <section>
+        <h1>Net worth (in USD)</h1>
+        <p x-text="$formatNumber(summary.netWorthUSD, { style: 'currency', currency: 'USD', })"></p>
+      </section>
+      <section>
+        <h1>Total collateral value (in USD)</h1>
+        <p x-text="$formatNumber(summary.totalCollateralUSD, { style: 'currency', currency: 'USD'})"></p>
+      </section>
+      <section>
+        <h1>Total amount available to borrow (in USD)</h1>
+        <p x-text="$formatNumber(summary.availableBorrowsUSD, { style: 'currency', currency: 'USD'})"></p>
+      </section>
+      <section>
+        <h1>Current health factor</h1>
+        <p x-text="$formatNumber(summary.healthFactor)"></p>
+      </section>
+
+      <section>
+        <h1>Collateral usage</h1>
+        <p x-text="$formatNumber(summary.collateralUsage, { style: 'percent' })"></p>
+      </section>
+      <section>
+        <h1>Supplying</h1>
+        <ul x-data="{ positions: summary.userReservesData.filter(data => parseFloat(data.underlyingBalanceUSD) > 0) }">
+          <template x-for="position in positions">
+            <li>
+              <span x-text="$formatERC20Balance(position.underlyingBalance, position.reserve.symbol)"></span>
+            </li>
+            <span
+              x-text="'(' + $formatNumber(position.underlyingBalanceUSD, { style: 'currency', currency: 'USD' }) +')'"
+            ></span>
+          </template>
+        </ul>
+      </section>
+    </article>
+  </template>
+</div>

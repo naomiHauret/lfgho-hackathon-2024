@@ -1,0 +1,9 @@
+<template x-if="!$store.currentUser.account">
+  <button
+    aria-label="Connect via your web3 browser wallet (Metamask, Taho...)"
+    x-text="['connecting', 'reconnecting'].includes($store.currentUser.status) ? 'Connecting...' : 'Connect'"
+    @click="$store.currentUser.connect()"></button>
+</template>
+<template x-if="$store.currentUser.account">
+  <span x-text="$store.currentUser.account"></span>
+</template>

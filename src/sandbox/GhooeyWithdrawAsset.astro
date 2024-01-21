@@ -1,0 +1,32 @@
+<template x-if="!$store.currentUser.account">
+  <p>Connect your wallet to withdraw your DAI !</p>
+</template>
+<template x-if="$store.currentUser.account">
+  <template x-if="$store.currentUser.aavePortfolio.summary">
+    <section
+      x-data="aaveWithdrawAsset"
+      x-init=`
+        market = 'DAI';
+        token = $aaveAssetBySymbol(market);
+        amount = 1;
+        userAssetData = $store.currentUser?.aavePortfolio?.summary.userReservesData.filter(reserve =>  token.UNDERLYING.toLowerCase() === reserve.underlyingAsset.toLowerCase())[0];
+      `
+    >
+      <form @submit.prevent="withdrawAsset()">
+        <div>
+          <label for="withdraw">Amount to withdraw</label>
+          <input
+            x-model.number="amount"
+            min="0.000001"
+            id="withdraw"
+            type="number"
+            placeholder="1.00"
+            step="0.000001"
+          />
+          <button>Withdraw</button>
+        </div>
+        <span x-text="status"></span>
+      </form>
+    </section>
+  </template>
+</template>
